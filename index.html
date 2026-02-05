@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://api.fontshare.com/v2/css?f[]=sentient@400,700,401,701&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@200;300;400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --c-black: #0A0A0A; --c-pure-black: #000000; --c-white: #FAFAFA; --c-pure-white: #FFFFFF;
@@ -53,7 +53,7 @@
         #preloader { position: fixed; inset: 0; background: var(--c-pure-black); z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .preloader-logo { font-family: 'Manrope', sans-serif; font-weight: 300; letter-spacing: 0.2em; color: var(--c-gold); font-size: 1.2rem; overflow: hidden; }
         .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9000; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
-        .serif { font-family: 'Playfair Display', serif; }
+        .serif { font-family: 'Sentient', serif; }
         .font-light { font-weight: 300; }
         .micro-label { font-family: 'Manrope', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.25em; color: var(--accent-gold); display: block; margin-bottom: 1.5rem; opacity: 0.95; }
         .section-title { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1.2; color: var(--text-main); margin-bottom: 2rem; font-weight: 400; }
@@ -345,7 +345,7 @@
 		@keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .ticker-track-container:hover .ticker-track { animation-play-state: paused; }
         @media (max-width: 768px) { .partner-ticker-section { padding: 40px 0; } .ticker-track { gap: 60px; padding-left: 60px; } .ticker-logo { height: 22px; } }
-        .services-new-wrapper { background-color: var(--light-bg); padding: 160px 5%; color: var(--light-text); font-family: 'Manrope', sans-serif; position: relative; z-index: 10; }
+        .services-new-wrapper { background-color: var(--light-bg); padding: 160px 5%; color: var(--light-text); font-family: 'Sentient', serif; position: relative; z-index: 10; }
         .services-container { max-width: 1400px; margin: 0 auto; }
         .service-row { display: flex; align-items: center; justify-content: space-between; gap: 80px; margin-bottom: 120px; opacity: 0; transform: translateY(30px); }
         .service-row:last-child { margin-bottom: 0; }
@@ -885,6 +885,48 @@
 			background: rgba(255, 255, 255, 0.4) !important;
 			transform: scale(1.05);
 		}
+		
+		/* --- LUXURY FONT OVERRIDE --- */
+/* This replaces Playfair Display everywhere with Sentient */
+
+.serif, 
+h2, 
+.section-title, 
+.section-title i,
+.menu-link,
+.grid-card-title, 
+.zz-content h2, 
+.product-name, 
+.audio-hero-title, 
+.audio-gallery-caption h3,
+.audio-statement-text h2,
+.audio-spec-value,
+.security-hero-title, 
+.security-quad-info h4,
+.security-focus-content h2,
+.security-feature-num,
+.security-feature-text h4,
+.solar-hero-title, 
+.solar-stat-value,
+.solar-dual-panel h2,
+.solar-flow-header h2,
+.architecture-headline, 
+.experience-text, 
+.team-title-group h2, 
+.team-hero-overlay h3,
+.executive-info h4,
+.faq-question, 
+.faq-title-group h2,
+footer h3 {
+    font-family: 'Sentient', serif !important;
+}
+
+/* Specific styling for the elegant italics */
+i, .serif i, h2 i {
+    font-family: 'Sentient', serif !important;
+    font-style: italic !important;
+    font-weight: 401 !important; /* Sentient has a specific weight for italics */
+}
     </style>
 </head>
 <body>
@@ -1333,11 +1375,11 @@
                 </button>
                 <div class="dropdown-menu">
                     <a href="path/to/package1.pdf" download class="dropdown-item hover-target">
-                        <span>Residential Package</span>
+                        <span>Orvibo Package</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </a>
                     <a href="path/to/package2.pdf" download class="dropdown-item hover-target">
-                        <span>Developer Package</span>
+                        <span>Tuya Package</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </a>
                 </div>
