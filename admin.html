@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gidatech Admin</title>
     <!-- Supabase Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     
     <!-- INLINE CSS -->
     <style>
@@ -162,220 +162,247 @@
 
     <!-- INLINE JAVASCRIPT -->
     <script>
-        // --- CONFIGURATION: REPLACE KEYS HERE ---
-        const SUPABASE_URL = 'https://jurrmvwgtloxsukfspub.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1cnJtdndndGxveHN1a2ZzcHViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NjI5ODUsImV4cCI6MjA4NjEzODk4NX0.nylOyFvsYeJZuJxwcIyfiwNOQHyL0YOV3uXcnHGr9LY';
-        // ----------------------------------------
+  // --- CONFIGURATION: REPLACE KEYS HERE ---
+  const SUPABASE_URL = 'https://jurrmvwgtloxsukfspub.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1cnJtdndndGxveHN1a2ZzcHViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NjI5ODUsImV4cCI6MjA4NjEzODk4NX0.nylOyFvsYeJZuJxwcIyfiwNOQHyL0YOV3uXcnHGr9LY';
+  // ----------------------------------------
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  if (!window.supabase || !window.supabase.createClient) {
+    alert("Supabase library failed to load. Use the UMD script: /dist/umd/supabase.min.js");
+    throw new Error("Supabase UMD not available on window.supabase");
+  }
 
-        // State
-        let session = null;
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // DOM Elements
-        const loginView = document.getElementById('login-view');
-        const dashboardView = document.getElementById('dashboard-view');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
+  // DOM Elements
+  const loginView = document.getElementById('login-view');
+  const dashboardView = document.getElementById('dashboard-view');
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
 
-        // --- AUTHENTICATION ---
-        async function checkSession() {
-            const { data } = await supabase.auth.getSession();
-            if (data.session) {
-                session = data.session;
-                showDashboard();
-            } else {
-                showLogin();
-            }
-        }
+  function setLoginLoading(isLoading) {
+    const btn = loginForm.querySelector('button[type="submit"]') || loginForm.querySelector('button');
+    if (!btn) return;
+    btn.disabled = isLoading;
+    btn.textContent = isLoading ? "Signing In..." : "Sign In";
+  }
 
-        function showLogin() {
-            loginView.style.display = 'block';
-            dashboardView.style.display = 'none';
-        }
+  function showLogin() {
+    loginView.style.display = 'block';
+    dashboardView.style.display = 'none';
+  }
 
-        function showDashboard() {
-            loginView.style.display = 'none';
-            dashboardView.style.display = 'block';
-            loadContent();
-            loadProjects();
-            loadTeam();
-            loadLeads();
-        }
+  function showDashboard() {
+    loginView.style.display = 'none';
+    dashboardView.style.display = 'block';
+    Promise.resolve().then(loadContent).catch(console.error);
+    Promise.resolve().then(loadProjects).catch(console.error);
+    Promise.resolve().then(loadTeam).catch(console.error);
+    Promise.resolve().then(loadLeads).catch(console.error);
+  }
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const btn = loginForm.querySelector('button');
-            
-            btn.textContent = "Signing In...";
-            btn.disabled = true;
-            loginError.textContent = "";
+  // --- AUTH: react to auth changes (more reliable than manual session only)
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    if (session) showDashboard();
+    else showLogin();
+  });
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  async function initAuth() {
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      if (data.session) showDashboard();
+      else showLogin();
+    } catch (e) {
+      console.error(e);
+      loginError.textContent = e?.message || 'Session check failed.';
+      showLogin();
+    }
+  }
 
-            if (error) {
-                loginError.textContent = error.message;
-                btn.textContent = "Sign In";
-                btn.disabled = false;
-            } else {
-                session = data.session;
-                showDashboard();
-            }
-        });
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.textContent = "";
+    setLoginLoading(true);
 
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            location.reload();
-        });
+    try {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
 
-        // --- TABS ---
-        window.switchTab = function(tabName) {
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            
-            // Highlight Button
-            const btns = document.querySelectorAll('.nav-btn');
-            if(tabName === 'content') btns[0].classList.add('active');
-            if(tabName === 'projects') btns[1].classList.add('active');
-            if(tabName === 'team') btns[2].classList.add('active');
-            if(tabName === 'leads') btns[3].classList.add('active');
-        }
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      if (!data.session) throw new Error('No session returned. Check Supabase Auth settings.');
 
-        // --- SITE CONTENT EDITOR ---
-        async function loadContent() {
-            const container = document.getElementById('content-list');
-            container.innerHTML = 'Loading...';
-            
-            const { data, error } = await supabase.from('site_content').select('*').order('key');
-            if(error) {
-                console.error(error);
-                container.innerHTML = 'Error loading content.';
-                return;
-            }
+      showDashboard();
+    } catch (err) {
+      console.error(err);
+      loginError.textContent = err?.message || "Login failed.";
+      showLogin();
+    } finally {
+      setLoginLoading(false);
+    }
+  });
 
-            container.innerHTML = '';
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'content-row';
-                div.innerHTML = `
-                    <div>
-                        <label>${item.description || item.key}</label>
-                        <div class="content-key">${item.key}</div>
-                    </div>
-                    <div>
-                        ${item.type === 'video' 
-                            ? `<input type="text" id="val-${item.key}" value="${item.value}" placeholder="Video URL or Filename">` 
-                            : `<textarea id="val-${item.key}" rows="2">${item.value}</textarea>`
-                        }
-                    </div>
-                    <div>
-                        <button class="btn" onclick="saveContent('${item.key}')">Save</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+  });
 
-        window.saveContent = async (key) => {
-            const val = document.getElementById(`val-${key}`).value;
-            const { error } = await supabase.from('site_content').update({ value: val }).eq('key', key);
-            if(error) alert('Error saving: ' + error.message);
-            else alert('Saved!');
-        }
+  // --- TABS ---
+  window.switchTab = function (tabName) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    const btns = document.querySelectorAll('.nav-btn');
+    if (tabName === 'content') btns[0]?.classList.add('active');
+    if (tabName === 'projects') btns[1]?.classList.add('active');
+    if (tabName === 'team') btns[2]?.classList.add('active');
+    if (tabName === 'leads') btns[3]?.classList.add('active');
+  };
 
-        // --- PROJECTS CRUD ---
-        async function loadProjects() {
-            const container = document.getElementById('project-list');
-            container.innerHTML = 'Loading...';
-            const { data, error } = await supabase.from('projects').select('*').order('display_order', {ascending: true});
-            
-            if(error) return;
-            container.innerHTML = '';
-            
-            if(data.length === 0) container.innerHTML = '<p>No projects yet.</p>';
+  // --- SITE CONTENT EDITOR ---
+  async function loadContent() {
+    const container = document.getElementById('content-list');
+    container.innerHTML = 'Loading...';
 
-            data.forEach(p => {
-                container.innerHTML += `
-                    <div class="item-card">
-                        <img src="${p.image_url}">
-                        <div class="item-details">
-                            <h4>${p.title}</h4>
-                            <p>${p.description}</p>
-                        </div>
-                        <div class="actions">
-                            <button class="btn btn-danger" onclick="deleteItem('projects', '${p.id}')">Delete</button>
-                        </div>
-                    </div>`;
-            });
-        }
+    const { data, error } = await supabaseClient.from('site_content').select('*').order('key');
+    if (error) {
+      console.error(error);
+      container.innerHTML = 'Error loading content: ' + error.message;
+      return;
+    }
 
-        document.getElementById('add-project-btn').addEventListener('click', async (e) => {
-            const btn = e.target;
-            const title = document.getElementById('p-title').value;
-            const desc = document.getElementById('p-desc').value;
-            const link = document.getElementById('p-link').value;
-            const file = document.getElementById('p-file').files[0];
+    container.innerHTML = '';
+    data.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'content-row';
+      div.innerHTML = `
+        <div>
+          <label>${item.description || item.key}</label>
+          <div class="content-key">${item.key}</div>
+        </div>
+        <div>
+          ${item.type === 'video'
+            ? `<input type="text" id="val-${item.key}" value="${(item.value || '').replace(/"/g, '&quot;')}" placeholder="Video URL or Filename">`
+            : `<textarea id="val-${item.key}" rows="2">${item.value || ''}</textarea>`
+          }
+        </div>
+        <div>
+          <button class="btn" onclick="saveContent('${item.key}')">Save</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
 
-            if(!title || !file) return alert('Title and Image are required');
+  window.saveContent = async (key) => {
+    const input = document.getElementById(`val-${key}`);
+    const val = input ? input.value : '';
+    const { error } = await supabaseClient.from('site_content').update({ value: val }).eq('key', key);
+    if (error) alert('Error saving: ' + error.message);
+    else alert('Saved!');
+  };
 
-            btn.textContent = 'Uploading...';
-            btn.disabled = true;
+  // --- PROJECTS CRUD ---
+  async function loadProjects() {
+    const container = document.getElementById('project-list');
+    container.innerHTML = 'Loading...';
 
-            try {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `projects/${Date.now()}.${fileExt}`;
-                const { error: uploadError } = await supabase.storage.from('gidatech-assets').upload(fileName, file);
-                if(uploadError) throw uploadError;
+    const { data, error } = await supabaseClient.from('projects').select('*').order('display_order', { ascending: true });
+    if (error) {
+      console.error(error);
+      container.innerHTML = 'Error loading projects: ' + error.message;
+      return;
+    }
 
-                const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/gidatech-assets/${fileName}`;
-                
-                const { error: dbError } = await supabase.from('projects').insert([{
-                    title, description: desc, link_url: link, image_url: imageUrl, display_order: Date.now()
-                }]);
-                
-                if(dbError) throw dbError;
-                
-                // Reset form
-                document.getElementById('p-title').value = '';
-                document.getElementById('p-desc').value = '';
-                document.getElementById('p-link').value = '';
-                document.getElementById('p-file').value = '';
-                loadProjects();
-                alert('Project added successfully');
+    container.innerHTML = '';
+    if (!data.length) container.innerHTML = '<p>No projects yet.</p>';
 
-            } catch(err) {
-                alert('Error: ' + err.message);
-            } finally {
-                btn.textContent = 'Add Project';
-                btn.disabled = false;
-            }
-        });
+    data.forEach(p => {
+      container.innerHTML += `
+        <div class="item-card">
+          <img src="${p.image_url || ''}">
+          <div class="item-details">
+            <h4>${p.title || ''}</h4>
+            <p>${p.description || ''}</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-danger" onclick="deleteItem('projects', '${p.id}')">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  }
 
-        // --- TEAM CRUD ---
-        async function loadTeam() {
-            const container = document.getElementById('team-list');
-            container.innerHTML = 'Loading...';
-            const { data, error } = await supabase.from('team_members').select('*').order('display_order', {ascending: true});
-            
-            if(error) return;
-            container.innerHTML = '';
-            
-            if(data.length === 0) container.innerHTML = '<p>No team members yet.</p>';
+  document.getElementById('add-project-btn').addEventListener('click', async (e) => {
+    const btn = e.target;
+    const title = document.getElementById('p-title').value.trim();
+    const desc = document.getElementById('p-desc').value.trim();
+    const link = document.getElementById('p-link').value.trim();
+    const file = document.getElementById('p-file').files[0];
 
-            data.forEach(t => {
-                container.innerHTML += `
-                    <div class="item-card">
-                        <img src="${t.image_url}">
-                        <div class="item-details">
-                            <h4>${t.name}</h4>
-                            <p>${t.role}</p>
-                        </div>
-                        <div class="actions">
-                            <button class="btn btn-danger" onclick="deleteItem('team_members', '${t.id}')">Delete</button>
+    if (!title || !file) return alert('Title and Image are required');
+
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+
+    try {
+      const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
+      const fileName = `projects/${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabaseClient.storage.from('gidatech-assets').upload(fileName, file, { upsert: false });
+      if (uploadError) throw uploadError;
+
+      const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/gidatech-assets/${fileName}`;
+
+      const { error: dbError } = await supabaseClient.from('projects').insert([{
+        title,
+        description: desc,
+        link_url: link,
+        image_url: imageUrl,
+        display_order: Date.now()
+      }]);
+
+      if (dbError) throw dbError;
+
+      document.getElementById('p-title').value = '';
+      document.getElementById('p-desc').value = '';
+      document.getElementById('p-link').value = '';
+      document.getElementById('p-file').value = '';
+      await loadProjects();
+      alert('Project added successfully');
+    } catch (err) {
+      console.error(err);
+      alert('Error: ' + (err?.message || err));
+    } finally {
+      btn.textContent = 'Add Project';
+      btn.disabled = false;
+    }
+  });
+
+  // --- TEAM CRUD ---
+  async function loadTeam() {
+    const container = document.getElementById('team-list');
+    container.innerHTML = 'Loading...';
+
+    const { data, error } = await supabaseClient.from('team_members').select('*').order('display_order', { ascending: true });
+    if (error) {
+      console.error(error);
+      container.innerHTML = 'Error loading team: ' + error.message;
+      return;
+    }
+
+    container.innerHTML = '';
+    if (!data.length) container.innerHTML = '<p>No team members yet.</p>';
+
+    data.forEach(t => {
+      container.innerHTML += `
+        <div class="item-card">
+          <img src="${t.image_url || ''}">
+          <div class="item-details">
+            <h4>${t.name || ''}</h4>
+            <p>${t.role || ''}</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-danger" onclick="deleteItem('team_members', '${t.id}')">Delete</button>
                         </div>
                     </div>`;
             });
