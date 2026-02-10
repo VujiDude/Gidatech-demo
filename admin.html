@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gidatech Admin</title>
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- INLINE CSS -->
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #1f2937; }
+        .login-container { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center; }
+        .login-container h2 { margin-top: 0; color: #111827; }
+        .dashboard { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; min-height: 80vh; }
+        .header { background: #111827; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 1.25rem; }
+        .nav { background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; gap: 2px; padding: 0 20px; overflow-x: auto; }
+        .nav button { padding: 15px 20px; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 500; color: #6b7280; font-size: 0.95rem; white-space: nowrap; }
+        .nav button:hover { color: #111827; }
+        .nav button.active { border-bottom-color: #111827; color: #111827; }
+        .content-area { padding: 30px; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* Forms */
+        input[type="text"], input[type="password"], input[type="email"], textarea { width: 100%; padding: 10px; margin: 8px 0 20px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
+        label { font-weight: 600; font-size: 0.875rem; display: block; margin-bottom: 4px; color: #374151; }
+        .btn { background: #111827; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+        .btn:hover { background: #000; }
+        .btn-danger { background: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; }
+        .btn-secondary:hover { background: #f9fafb; }
+
+        /* Lists */
+        .item-list { display: flex; flex-direction: column; gap: 15px; }
+        .item-card { border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 20px; background: #fff; }
+        .item-card img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; background: #eee; }
+        .item-details { flex-grow: 1; }
+        .item-details h4 { margin: 0 0 5px 0; }
+        .item-details p { margin: 0; color: #6b7280; font-size: 0.85rem; }
+        .actions { display: flex; gap: 10px; }
+
+        /* Content Editor */
+        .content-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 20px; align-items: start; border-bottom: 1px solid #f3f4f6; padding: 20px 0; }
+        .content-key { font-family: monospace; color: #6b7280; font-size: 0.85rem; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 12px; background: #f9fafb; font-size: 0.75rem; text-transform: uppercase; color: #6b7280; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        .badge { padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
+        .badge-tuya { background: #e0f2fe; color: #0369a1; }
+        .badge-orvibo { background: #fef3c7; color: #b45309; }
+
+        @media (max-width: 768px) {
+            .content-row { grid-template-columns: 1fr; }
+            .item-card { flex-direction: column; align-items: flex-start; }
+            .nav { padding-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-view" class="login-container">
+        <h2>Admin Login</h2>
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="btn" style="width:100%">Sign In</button>
+            <p id="login-error" style="color: #ef4444; margin-top: 15px; font-size: 0.9rem;"></p>
+        </form>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboard-view" class="dashboard">
+        <header class="header">
+            <h1>Gidatech CMS</h1>
+            <button id="logout-btn" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Logout</button>
+        </header>
+        
+        <nav class="nav">
+            <button class="nav-btn active" onclick="switchTab('content')">Site Content</button>
+            <button class="nav-btn" onclick="switchTab('projects')">Projects</button>
+            <button class="nav-btn" onclick="switchTab('team')">Team</button>
+            <button class="nav-btn" onclick="switchTab('leads')">Leads & Downloads</button>
+        </nav>
+
+        <div class="content-area">
+            
+            <!-- TAB: SITE CONTENT -->
+            <div id="tab-content" class="tab-pane active">
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                    <h3>Edit Titles & Text</h3>
+                    <button class="btn btn-secondary" onclick="loadContent()">Refresh</button>
+                </div>
+                <div id="content-list">Loading...</div>
+            </div>
+
+            <!-- TAB: PROJECTS -->
+            <div id="tab-projects" class="tab-pane">
+                <h3>Manage Projects</h3>
+                <div style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:30px; border:1px solid #e5e7eb;">
+                    <h4 style="margin-top:0;">Add New Project</h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <input type="text" id="p-title" placeholder="Project Title">
+                        <input type="text" id="p-desc" placeholder="Short Description">
+                    </div>
+                    <input type="text" id="p-link" placeholder="Link (e.g., # or https://...)">
+                    <label>Project Image</label>
+                    <input type="file" id="p-file" accept="image/*">
+                    <button id="add-project-btn" class="btn">Add Project</button>
+                </div>
+                <div id="project-list" class="item-list">Loading...</div>
+            </div>
+
+            <!-- TAB: TEAM -->
+            <div id="tab-team" class="tab-pane">
+                <h3>Manage Team</h3>
+                <div style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:30px; border:1px solid #e5e7eb;">
+                    <h4 style="margin-top:0;">Add Team Member</h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <input type="text" id="t-name" placeholder="Full Name">
+                        <input type="text" id="t-role" placeholder="Role / Position">
+                    </div>
+                    <label>Profile Photo</label>
+                    <input type="file" id="t-file" accept="image/*">
+                    <button id="add-team-btn" class="btn">Add Member</button>
+                </div>
+                <div id="team-list" class="item-list">Loading...</div>
+            </div>
+
+            <!-- TAB: LEADS -->
+            <div id="tab-leads" class="tab-pane">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3>Package Downloads</h3>
+                    <button onclick="exportCSV()" class="btn btn-secondary">Download CSV</button>
+                </div>
+                <div id="leads-stats" style="margin-bottom:20px; font-weight:600; color:#111827;"></div>
+                <div style="overflow-x:auto;">
+                    <table id="leads-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>City</th>
+                                <th>Purpose</th>
+                                <th>Package</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- INLINE JAVASCRIPT -->
+    <script>
+        // --- CONFIGURATION: REPLACE KEYS HERE ---
+        const SUPABASE_URL = 'https://jurrmvwgtloxsukfspub.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1cnJtdndndGxveHN1a2ZzcHViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NjI5ODUsImV4cCI6MjA4NjEzODk4NX0.nylOyFvsYeJZuJxwcIyfiwNOQHyL0YOV3uXcnHGr9LY';
+        // ----------------------------------------
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // State
+        let session = null;
+
+        // DOM Elements
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+
+        // --- AUTHENTICATION ---
+        async function checkSession() {
+            const { data } = await supabase.auth.getSession();
+            if (data.session) {
+                session = data.session;
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            loginView.style.display = 'block';
+            dashboardView.style.display = 'none';
+        }
+
+        function showDashboard() {
+            loginView.style.display = 'none';
+            dashboardView.style.display = 'block';
+            loadContent();
+            loadProjects();
+            loadTeam();
+            loadLeads();
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = loginForm.querySelector('button');
+            
+            btn.textContent = "Signing In...";
+            btn.disabled = true;
+            loginError.textContent = "";
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                loginError.textContent = error.message;
+                btn.textContent = "Sign In";
+                btn.disabled = false;
+            } else {
+                session = data.session;
+                showDashboard();
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            location.reload();
+        });
+
+        // --- TABS ---
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Highlight Button
+            const btns = document.querySelectorAll('.nav-btn');
+            if(tabName === 'content') btns[0].classList.add('active');
+            if(tabName === 'projects') btns[1].classList.add('active');
+            if(tabName === 'team') btns[2].classList.add('active');
+            if(tabName === 'leads') btns[3].classList.add('active');
+        }
+
+        // --- SITE CONTENT EDITOR ---
+        async function loadContent() {
+            const container = document.getElementById('content-list');
+            container.innerHTML = 'Loading...';
+            
+            const { data, error } = await supabase.from('site_content').select('*').order('key');
+            if(error) {
+                console.error(error);
+                container.innerHTML = 'Error loading content.';
+                return;
+            }
+
+            container.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'content-row';
+                div.innerHTML = `
+                    <div>
+                        <label>${item.description || item.key}</label>
+                        <div class="content-key">${item.key}</div>
+                    </div>
+                    <div>
+                        ${item.type === 'video' 
+                            ? `<input type="text" id="val-${item.key}" value="${item.value}" placeholder="Video URL or Filename">` 
+                            : `<textarea id="val-${item.key}" rows="2">${item.value}</textarea>`
+                        }
+                    </div>
+                    <div>
+                        <button class="btn" onclick="saveContent('${item.key}')">Save</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.saveContent = async (key) => {
+            const val = document.getElementById(`val-${key}`).value;
+            const { error } = await supabase.from('site_content').update({ value: val }).eq('key', key);
+            if(error) alert('Error saving: ' + error.message);
+            else alert('Saved!');
+        }
+
+        // --- PROJECTS CRUD ---
+        async function loadProjects() {
+            const container = document.getElementById('project-list');
+            container.innerHTML = 'Loading...';
+            const { data, error } = await supabase.from('projects').select('*').order('display_order', {ascending: true});
+            
+            if(error) return;
+            container.innerHTML = '';
+            
+            if(data.length === 0) container.innerHTML = '<p>No projects yet.</p>';
+
+            data.forEach(p => {
+                container.innerHTML += `
+                    <div class="item-card">
+                        <img src="${p.image_url}">
+                        <div class="item-details">
+                            <h4>${p.title}</h4>
+                            <p>${p.description}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-danger" onclick="deleteItem('projects', '${p.id}')">Delete</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        document.getElementById('add-project-btn').addEventListener('click', async (e) => {
+            const btn = e.target;
+            const title = document.getElementById('p-title').value;
+            const desc = document.getElementById('p-desc').value;
+            const link = document.getElementById('p-link').value;
+            const file = document.getElementById('p-file').files[0];
+
+            if(!title || !file) return alert('Title and Image are required');
+
+            btn.textContent = 'Uploading...';
+            btn.disabled = true;
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `projects/${Date.now()}.${fileExt}`;
+                const { error: uploadError } = await supabase.storage.from('gidatech-assets').upload(fileName, file);
+                if(uploadError) throw uploadError;
+
+                const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/gidatech-assets/${fileName}`;
+                
+                const { error: dbError } = await supabase.from('projects').insert([{
+                    title, description: desc, link_url: link, image_url: imageUrl, display_order: Date.now()
+                }]);
+                
+                if(dbError) throw dbError;
+                
+                // Reset form
+                document.getElementById('p-title').value = '';
+                document.getElementById('p-desc').value = '';
+                document.getElementById('p-link').value = '';
+                document.getElementById('p-file').value = '';
+                loadProjects();
+                alert('Project added successfully');
+
+            } catch(err) {
+                alert('Error: ' + err.message);
+            } finally {
+                btn.textContent = 'Add Project';
+                btn.disabled = false;
+            }
+        });
+
+        // --- TEAM CRUD ---
+        async function loadTeam() {
+            const container = document.getElementById('team-list');
+            container.innerHTML = 'Loading...';
+            const { data, error } = await supabase.from('team_members').select('*').order('display_order', {ascending: true});
+            
+            if(error) return;
+            container.innerHTML = '';
+            
+            if(data.length === 0) container.innerHTML = '<p>No team members yet.</p>';
+
+            data.forEach(t => {
+                container.innerHTML += `
+                    <div class="item-card">
+                        <img src="${t.image_url}">
+                        <div class="item-details">
+                            <h4>${t.name}</h4>
+                            <p>${t.role}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-danger" onclick="deleteItem('team_members', '${t.id}')">Delete</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        document.getElementById('add-team-btn').addEventListener('click', async (e) => {
+            const btn = e.target;
+            const name = document.getElementById('t-name').value;
+            const role = document.getElementById('t-role').value;
+            const file = document.getElementById('t-file').files[0];
+
+            if(!name || !file) return alert('Name and Photo are required');
+
+            btn.textContent = 'Uploading...';
+            btn.disabled = true;
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `team/${Date.now()}.${fileExt}`;
+                const { error: uploadError } = await supabase.storage.from('gidatech-assets').upload(fileName, file);
+                if(uploadError) throw uploadError;
+
+                const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/gidatech-assets/${fileName}`;
+                
+                const { error: dbError } = await supabase.from('team_members').insert([{
+                    name, role, image_url: imageUrl, display_order: Date.now()
+                }]);
+                
+                if(dbError) throw dbError;
+                
+                // Reset form
+                document.getElementById('t-name').value = '';
+                document.getElementById('t-role').value = '';
+                document.getElementById('t-file').value = '';
+                loadTeam();
+                alert('Team member added successfully');
+
+            } catch(err) {
+                alert('Error: ' + err.message);
+            } finally {
+                btn.textContent = 'Add Member';
+                btn.disabled = false;
+            }
+        });
+
+        // --- SHARED DELETE FUNCTION ---
+        window.deleteItem = async (table, id) => {
+            if(!confirm('Are you sure you want to delete this item?')) return;
+            const { error } = await supabase.from(table).delete().eq('id', id);
+            if(error) alert('Error deleting: ' + error.message);
+            else {
+                if(table === 'projects') loadProjects();
+                if(table === 'team_members') loadTeam();
+            }
+        }
+
+        // --- LEADS ---
+        async function loadLeads() {
+            const tbody = document.querySelector('#leads-table tbody');
+            tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+            
+            const { data, error } = await supabase.from('leads').select('*').order('created_at', {ascending: false});
+            if(error) return;
+
+            tbody.innerHTML = '';
+            document.getElementById('leads-stats').innerText = `Total Downloads: ${data.length}`;
+
+            data.forEach(l => {
+                const date = new Date(l.created_at).toLocaleDateString();
+                const badgeClass = l.package_type === 'tuya' ? 'badge-tuya' : 'badge-orvibo';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${l.full_name}</td>
+                        <td>${l.phone}</td>
+                        <td>${l.city || '-'}</td>
+                        <td>${l.purpose || '-'}</td>
+                        <td><span class="badge ${badgeClass}">${l.package_type || 'Unknown'}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.exportCSV = async () => {
+            const { data } = await supabase.from('leads').select('*');
+            if(!data || !data.length) return alert('No data to export');
+
+            const headers = ['ID', 'Date', 'Name', 'Phone', 'City', 'Purpose', 'Package'];
+            const rows = data.map(l => [
+                l.id, l.created_at, l.full_name, l.phone, l.city, l.purpose, l.package_type
+            ]);
+
+            const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "gidatech_leads.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Init
+        checkSession();
+    </script>
+</body>
+</html>
