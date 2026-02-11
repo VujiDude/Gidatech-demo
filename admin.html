@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gidatech Admin</title>
-    <script src="./index_files/supabase.min.js.download"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #1f2937; }
         .login-container { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center; }
@@ -42,229 +43,82 @@
         .badge { padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
         .badge-tuya { background: #e0f2fe; color: #0369a1; }
         .badge-orvibo { background: #fef3c7; color: #b45309; }
-        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
-        .media-item { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: #fff; }
-        .media-item img, .media-item video { width: 100%; height: 120px; object-fit: cover; display: block; background: #f3f4f6; }
-        .media-item .media-info { padding: 10px; font-size: 0.8rem; color: #6b7280; word-break: break-all; }
-        .media-item .media-actions { padding: 0 10px 10px; display: flex; gap: 5px; }
-        .media-item .media-actions button { font-size: 0.75rem; padding: 4px 8px; }
-        .bucket-section { margin-bottom: 30px; }
-        .bucket-section h4 { margin-bottom: 10px; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
-        .upload-section { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb; }
-        .upload-section h4 { margin-top: 0; }
+
+        /* Media Manager Styles */
+        .media-level-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid #e5e7eb; }
+        .media-level-tab { padding: 10px 24px; background: transparent; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: #9ca3af; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+        .media-level-tab:hover { color: #374151; }
+        .media-level-tab.active { color: #111827; border-bottom-color: #111827; }
+        .media-group { display: none; }
+        .media-group.active { display: block; }
+        .sub-tabs { display: flex; gap: 4px; padding: 12px 0; flex-wrap: wrap; }
+        .sub-tab { padding: 6px 14px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 20px; cursor: pointer; font-size: 0.8rem; font-weight: 500; color: #6b7280; transition: all 0.2s; }
+        .sub-tab:hover { background: #e5e7eb; color: #374151; }
+        .sub-tab.active { background: #111827; color: white; border-color: #111827; }
+        .media-sub { display: none; }
+        .media-sub.active { display: block; }
+        .media-slot { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 16px; display: flex; gap: 20px; align-items: center; background: #fafafa; transition: box-shadow 0.2s; }
+        .media-slot:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .media-slot-preview { width: 140px; height: 90px; border-radius: 6px; overflow: hidden; background: #e5e7eb; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .media-slot-preview img, .media-slot-preview video { width: 100%; height: 100%; object-fit: cover; }
+        .media-slot-preview .no-media { font-size: 0.7rem; color: #9ca3af; text-align: center; padding: 8px; }
+        .media-slot-info { flex-grow: 1; }
+        .media-slot-label { font-weight: 600; font-size: 0.9rem; color: #111827; margin-bottom: 4px; }
+        .media-slot-key { font-family: monospace; font-size: 0.75rem; color: #9ca3af; margin-bottom: 8px; }
+        .media-slot-actions { display: flex; gap: 8px; align-items: center; }
+        .media-slot-actions input[type="file"] { margin: 0; padding: 0; font-size: 0.8rem; max-width: 200px; }
+        .media-info-note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px 18px; color: #1e40af; font-size: 0.85rem; margin-bottom: 16px; }
+        .media-info-note strong { font-weight: 600; }
+        .replace-btn { background: #111827; color: white; padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
+        .replace-btn:hover { background: #000; }
+        .replace-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         @media (max-width: 768px) {
             .content-row { grid-template-columns: 1fr; }
             .item-card { flex-direction: column; align-items: flex-start; }
             .nav { padding-bottom: 10px; }
-            .media-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            .media-slot { flex-direction: column; align-items: stretch; }
+            .media-slot-preview { width: 100%; height: 160px; }
         }
     </style>
-
-<style>
-	@font-face {
-		font-family: 'CameraPlainVariable';
-		src: url('https://cdn.gpteng.co/mcp-widgets/v1/fonts/CameraPlainVariable.woff2') format('woff2');
-		font-weight: 100 900;
-		font-style: normal;
-		font-display: swap;
-	}
-
-	#lovable-badge {
-		--badge-bg: #1b1b1b;
-		--badge-text: #c5c1b9;
-		--badge-text-hover: #dcdad5;
-		--badge-radius: 6px;
-		--badge-padding: 8px;
-		--badge-gap: 6px;
-		--badge-shadow: 
-			0 0 0 1px rgba(0, 0, 0, 0.88),
-			0 1px 0 0 rgba(0, 0, 0, 0.04),
-			0 2px 2px -1px rgba(0, 0, 0, 0.08),
-			0 4px 4px -2px rgba(0, 0, 0, 0.08),
-			0 8px 8px -4px rgba(0, 0, 0, 0.08),
-			0 16px 16px -8px rgba(0, 0, 0, 0.08);
-		--badge-transition-duration: 0.2s;
-		--badge-transition-easing: cubic-bezier(0.16, 1, 0.32, 1);
-		--focus-color: #575ECF;
-		--focus-offset: 2px;
-		--focus-width: 2px;
-		
-		position: fixed;
-		bottom: 12px;
-		right: 12px;
-		height: 24px;
-		display: flex;
-		align-items: center;
-		z-index: 1000000;
-		background-color: var(--badge-bg);
-		color: var(--badge-text);
-		border-radius: var(--badge-radius);
-		box-shadow: var(--badge-shadow);
-		font-size: 12px;
-		font-family: CameraPlainVariable, "CameraPlainVariable Fallback", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		font-weight: 400 !important;
-		text-transform: none !important;
-		font-feature-settings: normal !important;
-		transform: translateZ(0);
-		will-change: transform, opacity;
-	}
-
-	#lovable-badge-cta {
-		display: flex;
-		align-items: center;
-		gap: var(--badge-gap);
-		padding: 0 var(--badge-padding);
-		height: 100%;
-		color: inherit;
-		text-decoration: none;
-		white-space: nowrap;
-		border-radius: var(--badge-radius) 0 0 var(--badge-radius);
-		transition: 
-			background-color var(--badge-transition-duration) ease,
-			color var(--badge-transition-duration) ease,
-			transform 0.1s ease;
-	}
-
-	#lovable-badge-cta:hover {
-		background: rgba(255, 255, 255, 0.04);
-		color: var(--badge-text-hover);
-	}
-
-	#lovable-badge-cta:active {
-		transform: scale(0.98);
-	}
-
-	#lovable-badge-cta:focus {
-		outline: none;
-	}
-
-	#lovable-badge-cta:focus-visible {
-		outline: var(--focus-width) solid var(--focus-color);
-		outline-offset: var(--focus-offset);
-		z-index: 1;
-	}
-
-	#lovable-badge-text {
-		line-height: 1;
-	}
-
-	#lovable-badge-divider {
-		width: 1px;
-		height: 24px;
-		background-color: rgba(255, 255, 255, 0.04);
-		flex-shrink: 0;
-	}
-
-	#lovable-badge-close {
-		width: 24px;
-		height: 24px;
-		min-width: 24px;
-		min-height: 24px;
-		cursor: pointer;
-		background: none;
-		border: none;
-		padding: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 0 var(--badge-radius) var(--badge-radius) 0;
-		flex-shrink: 0;
-		transition: 
-			background-color var(--badge-transition-duration) ease,
-			transform 0.1s ease;
-	}
-
-	#lovable-badge-close:hover {
-		background: rgba(255, 255, 255, 0.04);
-	}
-
-	#lovable-badge-close:active {
-		transform: scale(0.92);
-	}
-
-	#lovable-badge-close:focus {
-		outline: none;
-	}
-
-	#lovable-badge-close:focus-visible {
-		outline: var(--focus-width) solid var(--focus-color);
-		outline-offset: calc(var(--focus-offset) * -1);
-		z-index: 1;
-	}
-
-	#lovable-badge-close svg path {
-		fill: var(--badge-text);
-		transition: fill var(--badge-transition-duration) ease;
-	}
-
-	#lovable-badge-close:hover svg path {
-		fill: var(--badge-text-hover);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		#lovable-badge-cta,
-		#lovable-badge-close,
-		#lovable-badge-close svg path {
-			transition: none;
-		}
-		
-		#lovable-badge-cta:active,
-		#lovable-badge-close:active {
-			transform: none;
-		}
-	}
-
-	@media (prefers-contrast: high) {
-		#lovable-badge {
-			--badge-bg: #000;
-			--badge-text: #fff;
-			--badge-text-hover: #fff;
-			border: 2px solid currentColor;
-		}
-		
-		#lovable-badge-cta:focus-visible,
-		#lovable-badge-close:focus-visible {
-			outline-width: 3px;
-		}
-	}
-</style>
+</head>
 <body>
 
     <!-- LOGIN -->
-    <div id="login-view" class="login-container" style="display: none;">
+    <div id="login-view" class="login-container">
         <h2>Admin Login</h2>
         <form id="login-form">
-            <input type="email" id="email" placeholder="Email" required="">
-            <input type="password" id="password" placeholder="Password" required="">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
             <button type="submit" class="btn" style="width:100%">Sign In</button>
             <p id="login-error" style="color: #ef4444; margin-top: 15px; font-size: 0.9rem;"></p>
         </form>
     </div>
 
     <!-- DASHBOARD -->
-    <div id="dashboard-view" class="dashboard" style="display: block;">
+    <div id="dashboard-view" class="dashboard">
         <header class="header">
             <h1>Gidatech CMS</h1>
             <button id="logout-btn" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Logout</button>
         </header>
         
         <nav class="nav">
-            <button class="nav-btn" onclick="switchTab(&#39;content&#39;)">Site Content</button>
-            <button class="nav-btn" onclick="switchTab(&#39;projects&#39;)">Projects</button>
-            <button class="nav-btn" onclick="switchTab(&#39;team&#39;)">Team</button>
-            <button class="nav-btn active" onclick="switchTab(&#39;media&#39;)">Media</button>
-            <button class="nav-btn" onclick="switchTab(&#39;leads&#39;)">Leads &amp; Downloads</button>
+            <button class="nav-btn active" onclick="switchTab('content')">Site Content</button>
+            <button class="nav-btn" onclick="switchTab('projects')">Projects</button>
+            <button class="nav-btn" onclick="switchTab('team')">Team</button>
+            <button class="nav-btn" onclick="switchTab('media')">Media</button>
+            <button class="nav-btn" onclick="switchTab('leads')">Leads & Downloads</button>
         </nav>
 
         <div class="content-area">
             
             <!-- TAB: SITE CONTENT -->
-            <div id="tab-content" class="tab-pane">
+            <div id="tab-content" class="tab-pane active">
                 <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                    <h3>Edit Titles &amp; Text</h3>
+                    <h3>Edit Titles & Text</h3>
                     <button class="btn btn-secondary" onclick="loadContent()">Refresh</button>
                 </div>
-                <div id="content-list"><div class="content-row"><div><label>About Page Title Accent</label><div class="content-key">about_hero_subtitle</div></div><div><textarea id="val-about_hero_subtitle" rows="2">Without the stress.</textarea></div><div><button class="btn" onclick="saveContent(&#39;about_hero_subtitle&#39;)">Save</button></div></div><div class="content-row"><div><label>About Page Title Top</label><div class="content-key">about_hero_title</div></div><div><textarea id="val-about_hero_title" rows="2">We make smart homes</textarea></div><div><button class="btn" onclick="saveContent(&#39;about_hero_title&#39;)">Save</button></div></div><div class="content-row"><div><label>Audio Page Title</label><div class="content-key">audio_title</div></div><div><textarea id="val-audio_title" rows="2">Great sound. Clean space.</textarea></div><div><button class="btn" onclick="saveContent(&#39;audio_title&#39;)">Save</button></div></div><div class="content-row"><div><label>Main Hero Paragraph</label><div class="content-key">hero_description</div></div><div><textarea id="val-hero_description" rows="2">We design and install smart home systems that make your home more comfortable, secure and effortless to control all from one place.</textarea></div><div><button class="btn" onclick="saveContent(&#39;hero_description&#39;)">Save</button></div></div><div class="content-row"><div><label>Hero headline</label><div class="content-key">hero_title</div></div><div><textarea id="val-hero_title" rows="2">Smart Solutions For Modern Living</textarea></div><div><button class="btn" onclick="saveContent(&#39;hero_title&#39;)">Save</button></div></div><div class="content-row"><div><label>Hero Title Top Line</label><div class="content-key">hero_title_1</div></div><div><textarea id="val-hero_title_1" rows="2"> Smart Home Automation</textarea></div><div><button class="btn" onclick="saveContent(&#39;hero_title_1&#39;)">Save</button></div></div><div class="content-row"><div><label>Hero Title Bottom Line</label><div class="content-key">hero_title_2</div></div><div><textarea id="val-hero_title_2" rows="2">Made simple for Nigerians</textarea></div><div><button class="btn" onclick="saveContent(&#39;hero_title_2&#39;)">Save</button></div></div><div class="content-row"><div><label>Background Video (URL or filename)</label><div class="content-key">hero_video</div></div><div><input type="text" id="val-hero_video" value="hero2.mp4" placeholder="Video URL"></div><div><button class="btn" onclick="saveContent(&#39;hero_video&#39;)">Save</button></div></div><div class="content-row"><div><label>Lighting Page Title</label><div class="content-key">lighting_title</div></div><div><textarea id="val-lighting_title" rows="2">Lighting that understands the moment.</textarea></div><div><button class="btn" onclick="saveContent(&#39;lighting_title&#39;)">Save</button></div></div><div class="content-row"><div><label>Security Page Title</label><div class="content-key">security_title</div></div><div><textarea id="val-security_title" rows="2">Security you can trust.</textarea></div><div><button class="btn" onclick="saveContent(&#39;security_title&#39;)">Save</button></div></div><div class="content-row"><div><label>Solar Page Title</label><div class="content-key">solar_title</div></div><div><textarea id="val-solar_title" rows="2">Energy independence.</textarea></div><div><button class="btn" onclick="saveContent(&#39;solar_title&#39;)">Save</button></div></div></div>
+                <div id="content-list">Loading...</div>
             </div>
 
             <!-- TAB: PROJECTS -->
@@ -281,7 +135,7 @@
                     <input type="file" id="p-file" accept="image/*">
                     <button id="add-project-btn" class="btn">Add Project</button>
                 </div>
-                <div id="project-list" class="item-list"><div class="item-card"><img src="./index_files/work1.png"><div class="item-details"><h4>Jabi Lake House</h4><p>Full shading automation &amp; climate zoning.</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(&#39;projects&#39;,&#39;99c2692f-812e-44cb-a714-7ffb59fb706a&#39;)">Delete</button></div></div><div class="item-card"><img src="./index_files/work2.png"><div class="item-details"><h4>Banana Island Villa</h4><p>Audio and visuals integrated without altering the interior design.</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(&#39;projects&#39;,&#39;e38e1012-8a3a-403a-acac-c500dd3d7613&#39;)">Delete</button></div></div><div class="item-card"><img src="./index_files/work3.png"><div class="item-details"><h4>Asokoro Residence</h4><p>Smart lighting and energy management throughout.</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(&#39;projects&#39;,&#39;a2afbca9-0c90-4a75-8d73-124dcc45d054&#39;)">Delete</button></div></div></div>
+                <div id="project-list" class="item-list">Loading...</div>
             </div>
 
             <!-- TAB: TEAM -->
@@ -297,54 +151,56 @@
                     <input type="file" id="t-file" accept="image/*">
                     <button id="add-team-btn" class="btn">Add Member</button>
                 </div>
-                <div id="team-list" class="item-list"><div class="item-card"><img src="./index_files/member1.jpg"><div class="item-details"><h4>Daniel Goje</h4><p>Manager</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(&#39;team_members&#39;,&#39;6551c057-4468-43dc-adf9-3033ce6abc87&#39;)">Delete</button></div></div><div class="item-card"><img src="./index_files/member2.png"><div class="item-details"><h4>Angel Ugochukwu</h4><p>Head of Marketing</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(&#39;team_members&#39;,&#39;2452a3a0-0a02-4248-bb1d-e6410ca5bf10&#39;)">Delete</button></div></div><div class="item-card"><img src="./index_files/photo-1556157382-2eda3e8a9944"><div class="item-details"><h4>Chike Nwankwo</h4><p>Design Specialist</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(&#39;team_members&#39;,&#39;fa8c63fb-48da-4b30-b997-d08e01359f2c&#39;)">Delete</button></div></div></div>
+                <div id="team-list" class="item-list">Loading...</div>
             </div>
 
             <!-- TAB: MEDIA -->
-            <div id="tab-media" class="tab-pane active">
-                <h3>Media Manager</h3>
+            <div id="tab-media" class="tab-pane">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3 style="margin:0;">Media Manager</h3>
+                    <button class="btn btn-secondary" onclick="loadMediaRegistry()">Refresh</button>
+                </div>
 
-                <div class="upload-section">
-                    <h4>Hero Assets</h4>
-                    <p style="color:#6b7280; font-size:0.85rem; margin-top:0;">Upload hero video or background. These update the landing page automatically via site_content.</p>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div>
-                            <label>Hero Video (.mp4)</label>
-                            <input type="file" id="hero-video-file" accept="video/*">
-                            <button class="btn" onclick="uploadHeroAsset(&#39;hero-video-file&#39;,&#39;hero_video.mp4&#39;,&#39;hero_video&#39;)">Upload Video</button>
-                        </div>
-                        <div>
-                            <label>Hero Background Image</label>
-                            <input type="file" id="hero-bg-file" accept="image/*">
-                            <button class="btn" onclick="uploadHeroAsset(&#39;hero-bg-file&#39;,&#39;hero_bg.jpg&#39;,&#39;hero_background&#39;)">Upload Background</button>
-                        </div>
+                <div class="media-level-tabs">
+                    <button class="media-level-tab active" onclick="switchMediaGroup('homepage')">Homepage</button>
+                    <button class="media-level-tab" onclick="switchMediaGroup('pages')">Pages</button>
+                </div>
+
+                <!-- HOMEPAGE -->
+                <div id="media-group-homepage" class="media-group active">
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" onclick="switchMediaSub('homepage','hero')">Hero</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','works')">Works / Projects</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','services')">Services</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','process')">Process</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','team')">Team</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','faq')">FAQ</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','footer')">Footer</button>
                     </div>
+                    <div id="media-sub-homepage-hero" class="media-sub active"></div>
+                    <div id="media-sub-homepage-works" class="media-sub"></div>
+                    <div id="media-sub-homepage-services" class="media-sub"></div>
+                    <div id="media-sub-homepage-process" class="media-sub"></div>
+                    <div id="media-sub-homepage-team" class="media-sub"></div>
+                    <div id="media-sub-homepage-faq" class="media-sub"></div>
+                    <div id="media-sub-homepage-footer" class="media-sub"></div>
                 </div>
 
-                <div class="upload-section">
-                    <h4>Upload to Any Bucket</h4>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; align-items:end;">
-                        <div>
-                            <label>Bucket</label>
-                            <select id="upload-bucket" style="width:100%; padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                                <option value="hero-assets">hero-assets</option>
-                                <option value="homepage-images">homepage-images</option>
-                                <option value="pages-images">pages-images</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>File</label>
-                            <input type="file" id="general-upload-file">
-                        </div>
+                <!-- PAGES -->
+                <div id="media-group-pages" class="media-group">
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" onclick="switchMediaSub('pages','lighting')">Lighting</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','audio')">Audio</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','security')">Security</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','solar')">Solar</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','about')">About</button>
                     </div>
-                    <button class="btn" style="margin-top:10px;" onclick="uploadGeneral()">Upload File</button>
+                    <div id="media-sub-pages-lighting" class="media-sub active"></div>
+                    <div id="media-sub-pages-audio" class="media-sub"></div>
+                    <div id="media-sub-pages-security" class="media-sub"></div>
+                    <div id="media-sub-pages-solar" class="media-sub"></div>
+                    <div id="media-sub-pages-about" class="media-sub"></div>
                 </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:30px;">
-                    <h3 style="margin:0;">Stored Files</h3>
-                    <button class="btn btn-secondary" onclick="loadAllMedia()">Refresh</button>
-                </div>
-                <div id="media-browser"><div class="bucket-section"><h4>📁 hero-assets</h4><p style="color:#6b7280;">Empty</p></div><div class="bucket-section"><h4>📁 homepage-images</h4><p style="color:#6b7280;">Empty</p></div><div class="bucket-section"><h4>📁 pages-images</h4><p style="color:#6b7280;">Empty</p></div></div>
             </div>
 
             <!-- TAB: LEADS -->
@@ -353,11 +209,11 @@
                     <h3>Package Downloads</h3>
                     <button onclick="exportCSV()" class="btn btn-secondary">Download CSV</button>
                 </div>
-                <div id="leads-stats" style="margin-bottom:20px; font-weight:600; color:#111827;">Total Downloads: 1</div>
+                <div id="leads-stats" style="margin-bottom:20px; font-weight:600; color:#111827;"></div>
                 <div style="overflow-x:auto;">
                     <table id="leads-table">
                         <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>City</th><th>Purpose</th><th>Package</th></tr></thead>
-                        <tbody><tr><td>2/11/2026</td><td>Sulaiman01</td><td>09034669797</td><td>Abuja</td><td>Home</td><td><span class="badge badge-tuya">tuya</span></td></tr></tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -437,7 +293,7 @@
         const btns = document.querySelectorAll('.nav-btn');
         const idx = tabs.indexOf(tabName);
         if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
-        if (tabName === 'media') loadAllMedia();
+        if (tabName === 'media') loadMediaRegistry();
     };
 
     // --- SITE CONTENT ---
@@ -549,90 +405,220 @@
         else { if (table === 'projects') loadProjects(); if (table === 'team_members') loadTeam(); }
     };
 
-    // --- MEDIA MANAGER ---
-    const BUCKETS = ['hero-assets', 'homepage-images', 'pages-images'];
+    // =============================================
+    // SECTION-BASED MEDIA MANAGER
+    // =============================================
 
-    window.uploadHeroAsset = async (inputId, targetName, contentKey) => {
-        const fileInput = document.getElementById(inputId);
-        const file = fileInput.files[0];
-        if (!file) return alert('Please select a file first');
-        try {
-            const { error: upErr } = await supabaseClient.storage.from('hero-assets').upload(targetName, file, { upsert: true });
-            if (upErr) throw upErr;
-            const publicUrl = SUPABASE_URL + '/storage/v1/object/public/hero-assets/' + targetName;
-            if (contentKey) {
-                await supabaseClient.from('site_content').update({ value: publicUrl }).eq('key', contentKey);
-            }
-            fileInput.value = '';
-            alert('Hero asset uploaded & linked!');
-            loadAllMedia();
-        } catch (err) { alert('Error: ' + (err?.message || err)); }
-    };
-
-    window.uploadGeneral = async () => {
-        const bucket = document.getElementById('upload-bucket').value;
-        const fileInput = document.getElementById('general-upload-file');
-        const file = fileInput.files[0];
-        if (!file) return alert('Select a file');
-        const fileName = Date.now() + '-' + file.name;
-        try {
-            const { error } = await supabaseClient.storage.from(bucket).upload(fileName, file, { upsert: false });
-            if (error) throw error;
-            fileInput.value = '';
-            alert('Uploaded to ' + bucket);
-            loadAllMedia();
-        } catch (err) { alert('Error: ' + (err?.message || err)); }
-    };
-
-    async function loadAllMedia() {
-        const container = document.getElementById('media-browser');
-        container.innerHTML = 'Loading...';
-        let html = '';
-        for (const bucket of BUCKETS) {
-            const { data, error } = await supabaseClient.storage.from(bucket).list('', { limit: 100 });
-            html += '<div class="bucket-section"><h4>📁 ' + bucket + '</h4>';
-            if (error) { html += '<p style="color:#ef4444;">Error: ' + error.message + '</p></div>'; continue; }
-            if (!data || !data.length) { html += '<p style="color:#6b7280;">Empty</p></div>'; continue; }
-            var allFiles = [];
-            for (var i = 0; i < data.length; i++) {
-                var item = data[i];
-                if (item.id) {
-                    allFiles.push({ name: item.name, bucket: bucket });
-                } else {
-                    var sub = await supabaseClient.storage.from(bucket).list(item.name, { limit: 100 });
-                    if (sub.data) {
-                        for (var j = 0; j < sub.data.length; j++) {
-                            if (sub.data[j].id) allFiles.push({ name: item.name + '/' + sub.data[j].name, bucket: bucket });
-                        }
-                    }
-                }
-            }
-            if (!allFiles.length) { html += '<p style="color:#6b7280;">Empty</p></div>'; continue; }
-            html += '<div class="media-grid">';
-            for (var k = 0; k < allFiles.length; k++) {
-                var f = allFiles[k];
-                var url = SUPABASE_URL + '/storage/v1/object/public/' + f.bucket + '/' + f.name;
-                var isVideo = /\.(mp4|webm|mov)$/i.test(f.name);
-                html += '<div class="media-item">' +
-                    (isVideo
-                        ? '<video src="' + url + '" style="width:100%;height:120px;object-fit:cover;" muted></video>'
-                        : '<img src="' + url + '" onerror="this.style.display=\'none\'">') +
-                    '<div class="media-info">' + f.name + '</div>' +
-                    '<div class="media-actions">' +
-                    '<button class="btn btn-secondary" onclick="navigator.clipboard.writeText(\'' + url + '\');alert(\'URL copied!\')">Copy URL</button>' +
-                    '<button class="btn btn-danger" onclick="deleteMedia(\'' + f.bucket + '\',\'' + f.name + '\')">Delete</button>' +
-                    '</div></div>';
-            }
-            html += '</div></div>';
+    const MEDIA_REGISTRY = {
+        homepage: {
+            hero: [
+                { key: 'hero_video', label: 'Hero Background Video', bucket: 'hero-assets', accept: 'video/*', storagePath: 'hero_video.mp4' },
+                { key: 'hero_background', label: 'Hero Fallback Image', bucket: 'hero-assets', accept: 'image/*', storagePath: 'hero_bg.jpg' },
+            ],
+            works: [], // managed via Projects tab
+            services: [
+                { key: 'svc_thumb_lighting', label: 'Smart Lighting Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'svc_thumb_audio', label: 'Home Audio Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'svc_thumb_security', label: 'CCTV & Security Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'svc_thumb_solar', label: 'Solar & Power Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+            ],
+            process: [
+                { key: 'process_image', label: 'Engineering Process Image', bucket: 'homepage-images', accept: 'image/*' },
+            ],
+            team: [], // managed via Team tab
+            faq: [], // no images
+            footer: [
+                { key: 'experience_image', label: 'Full-Width Experience Image', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'footer_cta_bg', label: 'Footer CTA Background', bucket: 'homepage-images', accept: 'image/*' },
+            ],
+        },
+        pages: {
+            lighting: [
+                { key: 'lighting_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'lighting_grid_1', label: 'Grid Card — Morning', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'lighting_grid_2', label: 'Grid Card — Afternoon', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'lighting_grid_3', label: 'Grid Card — Evening', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'lighting_zigzag_1', label: 'Zigzag — Auto Day-to-Night', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'lighting_zigzag_2', label: 'Zigzag — Clean Walls', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'lighting_usp', label: 'USP Interface Image', bucket: 'pages-images', accept: 'image/*' },
+            ],
+            audio: [
+                { key: 'audio_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'audio_gallery_1', label: 'Gallery — Private Cinema', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'audio_gallery_2', label: 'Gallery — Living Room', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'audio_gallery_3', label: 'Gallery — Outdoor', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'audio_statement', label: 'Statement Section Image', bucket: 'pages-images', accept: 'image/*' },
+            ],
+            security: [
+                { key: 'security_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'security_quad_1', label: 'Quad Grid — Entrance', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'security_quad_2', label: 'Quad Grid — Perimeter', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'security_quad_3', label: 'Quad Grid — Interior', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'security_quad_4', label: 'Quad Grid — Control', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'security_focus', label: 'Focus Section Image', bucket: 'pages-images', accept: 'image/*' },
+            ],
+            solar: [
+                { key: 'solar_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'solar_break', label: 'Break Section Image', bucket: 'pages-images', accept: 'image/*' },
+            ],
+            about: [
+                { key: 'team_group_photo', label: 'Team Group Photo', bucket: 'pages-images', accept: 'image/*' },
+            ],
         }
-        container.innerHTML = html || '<p>No files found.</p>';
+    };
+
+    // Info messages for sections with no direct media
+    const SECTION_NOTES = {
+        'homepage-works': '📌 Project images are managed in the <strong>Projects</strong> tab. Each project card has its own image upload.',
+        'homepage-team': '📌 Individual team member photos are managed in the <strong>Team</strong> tab. The group photo below is a separate homepage asset.',
+        'homepage-faq': '📌 The FAQ section contains no images or videos — it\'s text-only.',
+    };
+
+    let mediaContentMap = {};
+
+    window.switchMediaGroup = function(group) {
+        document.querySelectorAll('.media-group').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.media-level-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('media-group-' + group).classList.add('active');
+        // Activate the right tab button
+        const tabs = document.querySelectorAll('.media-level-tab');
+        if (group === 'homepage') tabs[0].classList.add('active');
+        else tabs[1].classList.add('active');
+        // Show first sub-tab
+        const firstSub = document.querySelector('#media-group-' + group + ' .sub-tab');
+        if (firstSub) firstSub.click();
+    };
+
+    window.switchMediaSub = function(group, sub) {
+        const container = document.getElementById('media-group-' + group);
+        container.querySelectorAll('.media-sub').forEach(el => el.classList.remove('active'));
+        container.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('media-sub-' + group + '-' + sub).classList.add('active');
+        // Find and activate the clicked sub-tab button
+        container.querySelectorAll('.sub-tab').forEach(btn => {
+            if (btn.textContent.toLowerCase().includes(sub) || btn.getAttribute('onclick')?.includes("'" + sub + "'")) {
+                btn.classList.add('active');
+            }
+        });
+        renderMediaSection(group, sub);
+    };
+
+    async function loadMediaRegistry() {
+        // Fetch all site_content to get current URLs
+        const { data, error } = await supabaseClient.from('site_content').select('*');
+        if (error) { console.error('Failed to load site_content:', error.message); return; }
+        mediaContentMap = {};
+        if (data) data.forEach(item => mediaContentMap[item.key] = item.value);
+        // Render the currently active section
+        const activeGroup = document.querySelector('.media-group.active');
+        const activeSub = activeGroup ? activeGroup.querySelector('.media-sub.active') : null;
+        if (activeSub) {
+            const id = activeSub.id; // e.g. media-sub-homepage-hero
+            const parts = id.replace('media-sub-','').split('-');
+            renderMediaSection(parts[0], parts[1]);
+        }
     }
 
-    window.deleteMedia = async (bucket, path) => {
-        if (!confirm('Delete ' + path + ' from ' + bucket + '?')) return;
-        const { error } = await supabaseClient.storage.from(bucket).remove([path]);
-        if (error) alert('Error: ' + error.message);
-        else { alert('Deleted!'); loadAllMedia(); }
+    function renderMediaSection(group, sub) {
+        const container = document.getElementById('media-sub-' + group + '-' + sub);
+        if (!container) return;
+
+        const noteKey = group + '-' + sub;
+        const note = SECTION_NOTES[noteKey];
+        const items = MEDIA_REGISTRY[group]?.[sub] || [];
+
+        let html = '';
+
+        if (note) {
+            html += '<div class="media-info-note">' + note + '</div>';
+        }
+
+        if (items.length === 0 && !note) {
+            html += '<div class="media-info-note">No editable media in this section.</div>';
+            container.innerHTML = html;
+            return;
+        }
+
+        items.forEach(item => {
+            const currentUrl = mediaContentMap[item.key] || '';
+            const isVideo = item.accept === 'video/*';
+            const inputId = 'media-file-' + item.key;
+
+            let previewHtml = '';
+            if (currentUrl) {
+                if (isVideo) {
+                    previewHtml = '<video src="' + currentUrl + '" muted style="width:100%;height:100%;object-fit:cover;"></video>';
+                } else {
+                    previewHtml = '<img src="' + currentUrl + '" onerror="this.style.display=\'none\'">';
+                }
+            } else {
+                previewHtml = '<div class="no-media">No media set</div>';
+            }
+
+            html += '<div class="media-slot">' +
+                '<div class="media-slot-preview">' + previewHtml + '</div>' +
+                '<div class="media-slot-info">' +
+                    '<div class="media-slot-label">' + item.label + '</div>' +
+                    '<div class="media-slot-key">key: ' + item.key + '</div>' +
+                    '<div class="media-slot-actions">' +
+                        '<input type="file" id="' + inputId + '" accept="' + item.accept + '" style="margin:0;">' +
+                        '<button class="replace-btn" onclick="replaceMedia(\'' + item.key + '\',\'' + item.bucket + '\',\'' + inputId + '\',\'' + (item.storagePath || '') + '\')">Replace</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        });
+
+        container.innerHTML = html;
+    }
+
+    window.replaceMedia = async function(key, bucket, inputId, fixedPath) {
+        const fileInput = document.getElementById(inputId);
+        const file = fileInput?.files[0];
+        if (!file) return alert('Please select a file first.');
+
+        const btn = fileInput.nextElementSibling;
+        btn.textContent = 'Uploading...';
+        btn.disabled = true;
+
+        try {
+            // Determine storage path
+            const fileExt = (file.name.split('.').pop() || 'bin').toLowerCase();
+            const storagePath = fixedPath || ('media/' + key + '.' + fileExt);
+
+            // Upload (upsert to replace existing)
+            const { error: upErr } = await supabaseClient.storage.from(bucket).upload(storagePath, file, { upsert: true });
+            if (upErr) throw upErr;
+
+            // Build public URL
+            const publicUrl = SUPABASE_URL + '/storage/v1/object/public/' + bucket + '/' + storagePath + '?t=' + Date.now();
+
+            // Upsert into site_content
+            const { error: dbErr } = await supabaseClient.from('site_content').upsert(
+                { key: key, value: publicUrl, type: file.type.startsWith('video') ? 'video' : 'image' },
+                { onConflict: 'key' }
+            );
+            if (dbErr) throw dbErr;
+
+            // Update local map & re-render
+            mediaContentMap[key] = publicUrl;
+            fileInput.value = '';
+
+            // Re-render current section
+            const activeGroup = document.querySelector('.media-group.active');
+            const activeSub = activeGroup ? activeGroup.querySelector('.media-sub.active') : null;
+            if (activeSub) {
+                const id = activeSub.id;
+                const parts = id.replace('media-sub-','').split('-');
+                renderMediaSection(parts[0], parts[1]);
+            }
+
+            alert('✅ Media replaced & linked to site!');
+        } catch (err) {
+            alert('Error: ' + (err?.message || err));
+        } finally {
+            btn.textContent = 'Replace';
+            btn.disabled = false;
+        }
     };
 
     // --- LEADS ---
@@ -667,6 +653,5 @@
 
     initAuth();
     </script>
-
-
-</body></html>
+</body>
+</html>
