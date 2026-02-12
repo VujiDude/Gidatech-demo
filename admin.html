@@ -389,6 +389,7 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
                 { key: 'audio_gallery_1', label: 'Gallery — Private Cinema', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'audio_gallery_2', label: 'Gallery — Living Room', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'audio_gallery_3', label: 'Gallery — Outdoor', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'audio_statement_visual', label: 'Audio Statement Visual', bucket: 'pages-images', accept: 'image/*' },
             ],
             security: [
                 { key: 'security_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
@@ -396,6 +397,7 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
                 { key: 'security_quad_2', label: 'Quad Grid — Perimeter', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'security_quad_3', label: 'Quad Grid — Interior', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'security_quad_4', label: 'Quad Grid — Control', bucket: 'pages-images', accept: 'image/*' },
+                { key: 'security_focus_image', label: 'Security Focus Image', bucket: 'pages-images', accept: 'image/*' },
             ],
             solar: [
                 { key: 'solar_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
@@ -660,49 +662,66 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
     }
 
     document.getElementById('add-project-btn').addEventListener('click', async (e) => {
-        const btn = e.target;
-        const title = document.getElementById('p-title').value.trim();
-        const desc = document.getElementById('p-desc').value.trim();
-        const link = document.getElementById('p-link').value.trim();
-        const file = document.getElementById('p-file').files[0];
+    const btn = e.target;
+    const title = document.getElementById('p-title').value.trim();
+    const desc = document.getElementById('p-desc').value.trim();
+    const link = document.getElementById('p-link').value.trim();
+    const file = document.getElementById('p-file').files[0];
+    
+    if (!title || !file) return alert('Title and Image are required');
+    
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+    
+    try {
+        const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
+        const fileName = 'projects/' + Date.now() + '.' + fileExt;
         
-        if (!title || !file) return alert('Title and Image are required');
-        
-        btn.textContent = 'Uploading...';
-        btn.disabled = true;
-        
-        try {
-            const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
-            const fileName = 'projects/' + Date.now() + '.' + fileExt;
-            
-            const { error: upErr } = await supabaseClient.storage.from('homepage-images').upload(fileName, file, { upsert: false });
-            if (upErr) throw upErr;
-            
-            const imageUrl = SUPABASE_URL + '/storage/v1/object/public/homepage-images/' + fileName;
-            
-            const { error: dbErr } = await supabaseClient.from('projects').insert([{
-                title: title,
-                description: desc,
-                link_url: link,
-                image_url: imageUrl,
-                display_order: Date.now()
-            }]);
-            if (dbErr) throw dbErr;
-            
-            document.getElementById('p-title').value = '';
-            document.getElementById('p-desc').value = '';
-            document.getElementById('p-link').value = '';
-            document.getElementById('p-file').value = '';
-            
-            await loadProjects();
-            alert('Project added!');
-        } catch (err) {
-            alert('Error: ' + (err?.message || err));
-        } finally {
-            btn.textContent = 'Add Project';
-            btn.disabled = false;
+        console.log('[addProject] Step 1: Uploading file to storage...');
+        const { error: upErr } = await supabaseClient.storage.from('homepage-images').upload(fileName, file, { upsert: false });
+        if (upErr) {
+            console.error('[addProject] Storage upload error:', upErr.message);
+            throw upErr;
         }
-    });
+        console.log('[addProject] Step 2: Storage upload successful, generating URL...');
+        
+        const imageUrl = SUPABASE_URL + '/storage/v1/object/public/homepage-images/' + fileName;
+        
+        console.log('[addProject] Step 3: Inserting to projects table...');
+        const { error: dbErr } = await supabaseClient.from('projects').insert([{
+            title: title,
+            description: desc,
+            link_url: link,
+            image_url: imageUrl,
+            display_order: Date.now()
+        }]);
+        
+        if (dbErr) {
+            console.error('[addProject] Database insert error:', {
+                message: dbErr.message,
+                code: dbErr.code,
+                details: dbErr.details,
+                hint: dbErr.hint
+            });
+            throw new Error(`Database insert failed: ${dbErr.message} (Code: ${dbErr.code})`);
+        }
+        
+        console.log('[addProject] Success! Project inserted.');
+        document.getElementById('p-title').value = '';
+        document.getElementById('p-desc').value = '';
+        document.getElementById('p-link').value = '';
+        document.getElementById('p-file').value = '';
+        
+        await loadProjects();
+        alert('✅ Project added successfully!');
+    } catch (err) {
+        console.error('[addProject] Exception:', err.message);
+        alert('❌ Error: ' + (err?.message || err));
+    } finally {
+        btn.textContent = 'Add Project';
+        btn.disabled = false;
+    }
+});
 
     // ============================================================
     // TEAM FUNCTIONS
@@ -746,61 +765,84 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
     }
 
     document.getElementById('add-team-btn').addEventListener('click', async (e) => {
-        const btn = e.target;
-        const name = document.getElementById('t-name').value.trim();
-        const role = document.getElementById('t-role').value.trim();
-        const file = document.getElementById('t-file').files[0];
+    const btn = e.target;
+    const name = document.getElementById('t-name').value.trim();
+    const role = document.getElementById('t-role').value.trim();
+    const file = document.getElementById('t-file').files[0];
+    
+    if (!name || !file) return alert('Name and Photo are required');
+    
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+    
+    try {
+        const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
+        const fileName = 'team/' + Date.now() + '.' + fileExt;
         
-        if (!name || !file) return alert('Name and Photo are required');
-        
-        btn.textContent = 'Uploading...';
-        btn.disabled = true;
-        
-        try {
-            const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
-            const fileName = 'team/' + Date.now() + '.' + fileExt;
-            
-            const { error: upErr } = await supabaseClient.storage.from('pages-images').upload(fileName, file, { upsert: false });
-            if (upErr) throw upErr;
-            
-            const imageUrl = SUPABASE_URL + '/storage/v1/object/public/pages-images/' + fileName;
-            
-            const { error: dbErr } = await supabaseClient.from('team_members').insert([{
-                name: name,
-                role: role,
-                image_url: imageUrl,
-                display_order: Date.now()
-            }]);
-            if (dbErr) throw dbErr;
-            
-            document.getElementById('t-name').value = '';
-            document.getElementById('t-role').value = '';
-            document.getElementById('t-file').value = '';
-            
-            await loadTeam();
-            alert('Team member added!');
-        } catch (err) {
-            alert('Error: ' + (err?.message || err));
-        } finally {
-            btn.textContent = 'Add Member';
-            btn.disabled = false;
+        console.log('[addTeam] Step 1: Uploading photo to storage...');
+        const { error: upErr } = await supabaseClient.storage.from('pages-images').upload(fileName, file, { upsert: false });
+        if (upErr) {
+            console.error('[addTeam] Storage upload error:', upErr.message);
+            throw upErr;
         }
-    });
-
+        console.log('[addTeam] Step 2: Storage upload successful, generating URL...');
+        
+        const imageUrl = SUPABASE_URL + '/storage/v1/object/public/pages-images/' + fileName;
+        
+        console.log('[addTeam] Step 3: Inserting to team_members table...');
+        const { error: dbErr } = await supabaseClient.from('team_members').insert([{
+            name: name,
+            role: role,
+            image_url: imageUrl,
+            display_order: Date.now()
+        }]);
+        
+        if (dbErr) {
+            console.error('[addTeam] Database insert error:', {
+                message: dbErr.message,
+                code: dbErr.code,
+                details: dbErr.details,
+                hint: dbErr.hint
+            });
+            throw new Error(`Database insert failed: ${dbErr.message} (Code: ${dbErr.code})`);
+        }
+        
+        console.log('[addTeam] Success! Team member inserted.');
+        document.getElementById('t-name').value = '';
+        document.getElementById('t-role').value = '';
+        document.getElementById('t-file').value = '';
+        
+        await loadTeam();
+        alert('✅ Team member added successfully!');
+    } catch (err) {
+        console.error('[addTeam] Exception:', err.message);
+        alert('❌ Error: ' + (err?.message || err));
+    } finally {
+        btn.textContent = 'Add Member';
+        btn.disabled = false;
+    }
+});
     // ============================================================
     // SHARED FUNCTIONS
     // ============================================================
 
     window.deleteItem = async (table, id) => {
-        if (!confirm('Delete this item?')) return;
-        const { error } = await supabaseClient.from(table).delete().eq('id', id);
-        if (error) {
-            alert('Error: ' + error.message);
-        } else {
-            if (table === 'projects') loadProjects();
-            if (table === 'team_members') loadTeam();
-        }
-    };
+    if (!confirm('Delete this item?')) return;
+    console.log(`[deleteItem] Deleting from ${table} with id=${id}`);
+    const { error } = await supabaseClient.from(table).delete().eq('id', id);
+    if (error) {
+        console.error(`[deleteItem] Delete error:`, {
+            message: error.message,
+            code: error.code,
+            details: error.details
+        });
+        alert('❌ Error: ' + error.message + ' (Check console for details)');
+    } else {
+        console.log(`[deleteItem] Successfully deleted from ${table}!`);
+        if (table === 'projects') loadProjects();
+        if (table === 'team_members') loadTeam();
+    }
+};
 
     function setLoginLoading(isLoading) {
         const btn = loginForm.querySelector('button[type="submit"]');
@@ -941,3 +983,4 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
     </script>
 </body>
 </html>
+
