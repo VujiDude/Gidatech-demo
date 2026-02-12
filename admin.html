@@ -9,17 +9,17 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #1f2937; }
         .login-container { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center; }
         .login-container h2 { margin-top: 0; color: #111827; }
-        .dashboard { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; min-height: 80vh; }
+        .dashboard { display: none; max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; min-height: 80vh; }
         .header { background: #111827; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         .header h1 { margin: 0; font-size: 1.25rem; }
         .nav { background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; gap: 2px; padding: 0 20px; overflow-x: auto; }
         .nav button { padding: 15px 20px; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 500; color: #6b7280; font-size: 0.95rem; white-space: nowrap; }
         .nav button:hover { color: #111827; }
         .nav button.active { border-bottom-color: #111827; color: #111827; }
-        .content-area { padding: 30px; }
+        .content-area { padding: 30px; max-height: calc(100vh - 250px); overflow-y: auto; }
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
-        input[type="text"], input[type="password"], input[type="email"], textarea { width: 100%; padding: 10px; margin: 8px 0 20px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
+        input[type="text"], input[type="password"], input[type="email"], input[type="file"], textarea, select { width: 100%; padding: 10px; margin: 8px 0 20px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
         label { font-weight: 600; font-size: 0.875rem; display: block; margin-bottom: 4px; color: #374151; }
         .btn { background: #111827; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
         .btn:hover { background: #000; }
@@ -27,15 +27,6 @@
         .btn-danger:hover { background: #dc2626; }
         .btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; }
         .btn-secondary:hover { background: #f9fafb; }
-        .item-list { display: flex; flex-direction: column; gap: 15px; }
-        .item-card { border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 20px; background: #fff; }
-        .item-card img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; background: #eee; }
-        .item-details { flex-grow: 1; }
-        .item-details h4 { margin: 0 0 5px 0; }
-        .item-details p { margin: 0; color: #6b7280; font-size: 0.85rem; }
-        .actions { display: flex; gap: 10px; }
-        .content-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 20px; align-items: start; border-bottom: 1px solid #f3f4f6; padding: 20px 0; }
-        .content-key { font-family: monospace; color: #6b7280; font-size: 0.85rem; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { text-align: left; padding: 12px; background: #f9fafb; font-size: 0.75rem; text-transform: uppercase; color: #6b7280; font-weight: 600; }
         td { padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 0.9rem; }
@@ -43,6 +34,13 @@
         .badge { padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
         .badge-tuya { background: #e0f2fe; color: #0369a1; }
         .badge-orvibo { background: #fef3c7; color: #b45309; }
+        .debug-box { background: #fef3c7; border: 1px solid #fcd34d; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-family: monospace; font-size: 0.75rem; color: #92400e; }
+        .item-card { border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 20px; background: #fff; margin-bottom: 15px; }
+        .item-card img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; background: #eee; }
+        .item-details { flex-grow: 1; }
+        .item-details h4 { margin: 0 0 5px 0; }
+        .item-details p { margin: 0; color: #6b7280; font-size: 0.85rem; }
+        .actions { display: flex; gap: 10px; }
 
         /* Media Manager Styles */
         .media-level-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid #e5e7eb; }
@@ -72,14 +70,6 @@
         .replace-btn { background: #111827; color: white; padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
         .replace-btn:hover { background: #000; }
         .replace-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        @media (max-width: 768px) {
-            .content-row { grid-template-columns: 1fr; }
-            .item-card { flex-direction: column; align-items: flex-start; }
-            .nav { padding-bottom: 10px; }
-            .media-slot { flex-direction: column; align-items: stretch; }
-            .media-slot-preview { width: 100%; height: 160px; }
-        }
     </style>
 </head>
 <body>
@@ -99,21 +89,87 @@
     <div id="dashboard-view" class="dashboard">
         <header class="header">
             <h1>Gidatech CMS</h1>
-            <button id="logout-btn" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Logout</button>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="auth-status" style="font-size: 0.85rem; color: #9ca3af;">Checking auth...</span>
+                <button id="logout-btn" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Logout</button>
+            </div>
         </header>
         
         <nav class="nav">
-            <button class="nav-btn active" onclick="switchTab('content')">Site Content</button>
+            <button class="nav-btn active" onclick="switchTab('leads')">Leads</button>
+            <button class="nav-btn" onclick="switchTab('media')">Media</button>
+            <button class="nav-btn" onclick="switchTab('content')">Content</button>
             <button class="nav-btn" onclick="switchTab('projects')">Projects</button>
             <button class="nav-btn" onclick="switchTab('team')">Team</button>
-            <button class="nav-btn" onclick="switchTab('media')">Media</button>
-            <button class="nav-btn" onclick="switchTab('leads')">Leads & Downloads</button>
         </nav>
 
         <div class="content-area">
             
+            <!-- TAB: LEADS -->
+            <div id="tab-leads" class="tab-pane active">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3>Package Downloads</h3>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="debugLeadsQuery()" class="btn btn-secondary">Debug</button>
+                        <button onclick="loadLeads()" class="btn btn-secondary">Refresh</button>
+                        <button onclick="exportCSV()" class="btn btn-secondary">Export CSV</button>
+                    </div>
+                </div>
+                <div id="leads-debug" class="debug-box" style="display:none;"></div>
+                <div id="leads-stats" style="margin-bottom:20px; font-weight:600; color:#111827;"></div>
+                <div style="overflow-x:auto;">
+                    <table id="leads-table">
+                        <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>City</th><th>Purpose</th><th>Package</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: MEDIA -->
+            <div id="tab-media" class="tab-pane">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3>Media Manager</h3>
+                    <button class="btn btn-secondary" onclick="loadMediaRegistry()">Refresh</button>
+                </div>
+
+                <div class="media-level-tabs">
+                    <button class="media-level-tab active" onclick="switchMediaGroup('homepage')">Homepage</button>
+                    <button class="media-level-tab" onclick="switchMediaGroup('pages')">Pages</button>
+                </div>
+
+                <!-- HOMEPAGE -->
+                <div id="media-group-homepage" class="media-group active">
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" onclick="switchMediaSub('homepage','hero')">Hero</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','services')">Services</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','process')">Process</button>
+                        <button class="sub-tab" onclick="switchMediaSub('homepage','footer')">Footer</button>
+                    </div>
+                    <div id="media-sub-homepage-hero" class="media-sub active"></div>
+                    <div id="media-sub-homepage-services" class="media-sub"></div>
+                    <div id="media-sub-homepage-process" class="media-sub"></div>
+                    <div id="media-sub-homepage-footer" class="media-sub"></div>
+                </div>
+
+                <!-- PAGES -->
+                <div id="media-group-pages" class="media-group">
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" onclick="switchMediaSub('pages','lighting')">Lighting</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','audio')">Audio</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','security')">Security</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','solar')">Solar</button>
+                        <button class="sub-tab" onclick="switchMediaSub('pages','about')">About</button>
+                    </div>
+                    <div id="media-sub-pages-lighting" class="media-sub active"></div>
+                    <div id="media-sub-pages-audio" class="media-sub"></div>
+                    <div id="media-sub-pages-security" class="media-sub"></div>
+                    <div id="media-sub-pages-solar" class="media-sub"></div>
+                    <div id="media-sub-pages-about" class="media-sub"></div>
+                </div>
+            </div>
+
             <!-- TAB: SITE CONTENT -->
-            <div id="tab-content" class="tab-pane active">
+            <div id="tab-content" class="tab-pane">
                 <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
                     <h3>Edit Titles & Text</h3>
                     <button class="btn btn-secondary" onclick="loadContent()">Refresh</button>
@@ -135,7 +191,7 @@
                     <input type="file" id="p-file" accept="image/*">
                     <button id="add-project-btn" class="btn">Add Project</button>
                 </div>
-                <div id="project-list" class="item-list">Loading...</div>
+                <div id="project-list" style="display: flex; flex-direction: column; gap: 15px;">Loading...</div>
             </div>
 
             <!-- TAB: TEAM -->
@@ -151,82 +207,16 @@
                     <input type="file" id="t-file" accept="image/*">
                     <button id="add-team-btn" class="btn">Add Member</button>
                 </div>
-                <div id="team-list" class="item-list">Loading...</div>
-            </div>
-
-            <!-- TAB: MEDIA -->
-            <div id="tab-media" class="tab-pane">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3 style="margin:0;">Media Manager</h3>
-                    <button class="btn btn-secondary" onclick="loadMediaRegistry()">Refresh</button>
-                </div>
-
-                <div class="media-level-tabs">
-                    <button class="media-level-tab active" onclick="switchMediaGroup('homepage')">Homepage</button>
-                    <button class="media-level-tab" onclick="switchMediaGroup('pages')">Pages</button>
-                </div>
-
-                <!-- HOMEPAGE -->
-                <div id="media-group-homepage" class="media-group active">
-                    <div class="sub-tabs">
-                        <button class="sub-tab active" onclick="switchMediaSub('homepage','hero')">Hero</button>
-                        <button class="sub-tab" onclick="switchMediaSub('homepage','works')">Works / Projects</button>
-                        <button class="sub-tab" onclick="switchMediaSub('homepage','services')">Services</button>
-                        <button class="sub-tab" onclick="switchMediaSub('homepage','process')">Process</button>
-                        <button class="sub-tab" onclick="switchMediaSub('homepage','team')">Team</button>
-                        <button class="sub-tab" onclick="switchMediaSub('homepage','faq')">FAQ</button>
-                        <button class="sub-tab" onclick="switchMediaSub('homepage','footer')">Footer</button>
-                    </div>
-                    <div id="media-sub-homepage-hero" class="media-sub active"></div>
-                    <div id="media-sub-homepage-works" class="media-sub"></div>
-                    <div id="media-sub-homepage-services" class="media-sub"></div>
-                    <div id="media-sub-homepage-process" class="media-sub"></div>
-                    <div id="media-sub-homepage-team" class="media-sub"></div>
-                    <div id="media-sub-homepage-faq" class="media-sub"></div>
-                    <div id="media-sub-homepage-footer" class="media-sub"></div>
-                </div>
-
-                <!-- PAGES -->
-                <div id="media-group-pages" class="media-group">
-                    <div class="sub-tabs">
-                        <button class="sub-tab active" onclick="switchMediaSub('pages','lighting')">Lighting</button>
-                        <button class="sub-tab" onclick="switchMediaSub('pages','audio')">Audio</button>
-                        <button class="sub-tab" onclick="switchMediaSub('pages','security')">Security</button>
-                        <button class="sub-tab" onclick="switchMediaSub('pages','solar')">Solar</button>
-                        <button class="sub-tab" onclick="switchMediaSub('pages','about')">About</button>
-                    </div>
-                    <div id="media-sub-pages-lighting" class="media-sub active"></div>
-                    <div id="media-sub-pages-audio" class="media-sub"></div>
-                    <div id="media-sub-pages-security" class="media-sub"></div>
-                    <div id="media-sub-pages-solar" class="media-sub"></div>
-                    <div id="media-sub-pages-about" class="media-sub"></div>
-                </div>
-            </div>
-
-            <!-- TAB: LEADS -->
-            <div id="tab-leads" class="tab-pane">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3>Package Downloads</h3>
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="loadLeads()" class="btn btn-secondary">Refresh</button>
-                        <button onclick="exportCSV()" class="btn btn-secondary">Download CSV</button>
-                    </div>
-                </div>
-
-                <div id="leads-stats" style="margin-bottom:20px; font-weight:600; color:#111827;"></div>
-                <div style="overflow-x:auto;">
-                    <table id="leads-table">
-                        <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>City</th><th>Purpose</th><th>Package</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div id="team-list" style="display: flex; flex-direction: column; gap: 15px;">Loading...</div>
             </div>
 
         </div>
     </div>
 
     <script>
-    // --- CONFIG ---
+    // ============================================================
+    // SUPABASE CONFIG
+    // ============================================================
     const SUPABASE_URL = 'https://jurrmvwgtloxsukfspub.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1cnJtdndndGxveHN1a2ZzcHViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NjI5ODUsImV4cCI6MjA4NjEzODk4NX0.nylOyFvsYeJZuJxwcIyfiwNOQHyL0YOV3uXcnHGr9LY';
 
@@ -234,215 +224,137 @@
         alert("Supabase library failed to load.");
         throw new Error("Supabase UMD not available");
     }
+
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // State
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
+    const authStatus = document.getElementById('auth-status');
+    const leadsDebugBox = document.getElementById('leads-debug');
+    let dashboardInitialized = false;
+    let mediaContentMap = {};
 
-    function setLoginLoading(isLoading) {
-        const btn = loginForm.querySelector('button[type="submit"]');
-        if (!btn) return;
-        btn.disabled = isLoading;
-        btn.textContent = isLoading ? "Signing In..." : "Sign In";
-    }
-    function showLogin() { loginView.style.display = 'block'; dashboardView.style.display = 'none'; }
-    function showDashboard() {
-        loginView.style.display = 'none';
-        dashboardView.style.display = 'block';
-        loadContent(); loadProjects(); loadTeam(); loadLeads();
-    }
+    // ============================================================
+    // LEADS FUNCTIONS
+    // ============================================================
 
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
-        if (session) showDashboard(); else showLogin();
-    });
-
-    async function initAuth() {
+    async function loadLeads() {
+        const tbody = document.querySelector('#leads-table tbody');
+        const stats = document.getElementById('leads-stats');
+    
+        if (!tbody) {
+            console.error('[loadLeads] tbody not found');
+            return;
+        }
+    
+        tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+        if (stats) stats.innerText = 'Loading...';
+    
         try {
-            const { data, error } = await supabaseClient.auth.getSession();
-            if (error) throw error;
-            if (data.session) showDashboard(); else showLogin();
-        } catch (e) {
-            loginError.textContent = e?.message || 'Session check failed.';
-            showLogin();
+            console.log('[loadLeads] Fetching...');
+            const { data, error } = await supabaseClient
+                .from('leads')
+                .select('*')
+                .order('created_at', { ascending: false });
+    
+            console.log('[loadLeads] Response:', { error: error?.message, dataLength: data?.length });
+    
+            if (error) {
+                const msg = error.message || error.code || String(error);
+                tbody.innerHTML = `<tr><td colspan="6" style="color:#ef4444;">Error: ${msg}</td></tr>`;
+                if (stats) stats.innerText = `Error: ${msg}`;
+                return;
+            }
+    
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No leads yet.</td></tr>';
+                if (stats) stats.innerText = 'Total: 0';
+                return;
+            }
+    
+            tbody.innerHTML = '';
+            if (stats) stats.innerText = `Total Downloads: ${data.length}`;
+    
+            data.forEach(l => {
+                const date = l.created_at ? new Date(l.created_at).toLocaleDateString() : '-';
+                const badgeClass = l.package_type === 'tuya' ? 'badge-tuya' : 'badge-orvibo';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td>${l.full_name || '-'}</td>
+                    <td>${l.phone || '-'}</td>
+                    <td>${l.city || '-'}</td>
+                    <td>${l.purpose || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${l.package_type || 'Unknown'}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+    
+        } catch (err) {
+            console.error('[loadLeads] Exception:', err);
+            tbody.innerHTML = `<tr><td colspan="6" style="color:#ef4444;">Exception: ${err.message}</td></tr>`;
         }
     }
 
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        loginError.textContent = "";
-        setLoginLoading(true);
+    window.debugLeadsQuery = async function() {
+        console.log('[debugLeadsQuery] Starting...');
+        
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        console.log('[debugLeadsQuery] Session:', {
+            user: session?.user?.email,
+            authenticated: !!session
+        });
+
         try {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            if (!data.session) throw new Error('No session returned.');
-            showDashboard();
+            const { data, error, status } = await supabaseClient
+                .from('leads')
+                .select('*')
+                .limit(1);
+
+            const debugMsg = `
+Session: ${session?.user?.email || 'NOT AUTHENTICATED'}
+Status: ${status}
+Error: ${error?.message || 'none'}
+Data count: ${data?.length || 0}
+Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
+            `.trim();
+
+            console.log(debugMsg);
+            leadsDebugBox.innerText = debugMsg;
+            leadsDebugBox.style.display = 'block';
+
         } catch (err) {
-            loginError.textContent = err?.message || "Login failed.";
-            showLogin();
-        } finally { setLoginLoading(false); }
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', async () => { await supabaseClient.auth.signOut(); });
-
-    // --- TABS ---
-    window.switchTab = function(tabName) {
-        document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + tabName).classList.add('active');
-        const tabs = ['content','projects','team','media','leads'];
-        const btns = document.querySelectorAll('.nav-btn');
-        const idx = tabs.indexOf(tabName);
-        if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
-        if (tabName === 'media') loadMediaRegistry();
-        if (tabName === 'leads') loadLeads();
+            console.error('[debugLeadsQuery] Exception:', err);
+            leadsDebugBox.innerText = `Exception: ${err.message}`;
+            leadsDebugBox.style.display = 'block';
+        }
     };
 
-    // --- SITE CONTENT ---
-   async function loadLeads() {
-    const tbody = document.querySelector('#leads-table tbody');
-    const stats = document.getElementById('leads-stats');
-
-    tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-    if (stats) stats.innerText = 'Loading...';
-
-    const res = await supabaseClient
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    console.log('[LEADS] response:', res);
-
-    const { data, error } = res;
-
-    if (error) {
-        tbody.innerHTML = '<tr><td colspan="6" style="color:#ef4444;">Error: ' + error.message + '</td></tr>';
-        if (stats) stats.innerText = 'Error loading leads.';
-        return;
-    }
-
-    if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6">No leads returned.</td></tr>';
-        if (stats) stats.innerText = 'Total Downloads: 0 (returned by query)';
-        return;
-    }
-
-    tbody.innerHTML = '';
-    if (stats) stats.innerText = 'Total Downloads: ' + data.length;
-
-    data.forEach(l => {
-        const date = l.created_at ? new Date(l.created_at).toLocaleDateString() : '-';
-        const bc = l.package_type === 'tuya' ? 'badge-tuya' : 'badge-orvibo';
-        tbody.innerHTML += `
-            <tr>
-                <td>${date}</td>
-                <td>${l.full_name || '-'}</td>
-                <td>${l.phone || '-'}</td>
-                <td>${l.city || '-'}</td>
-                <td>${l.purpose || '-'}</td>
-                <td><span class="badge ${bc}">${l.package_type || 'Unknown'}</span></td>
-            </tr>
-        `;
-    });
-}
-
-
-    window.saveContent = async (key) => {
-        const input = document.getElementById('val-' + key);
-        const { error } = await supabaseClient.from('site_content').update({ value: input.value }).eq('key', key);
-        if (error) alert('Error: ' + error.message); else alert('Saved!');
+    window.exportCSV = async () => {
+        const { data } = await supabaseClient.from('leads').select('*');
+        if (!data || !data.length) {
+            alert('No data to export');
+            return;
+        }
+        const headers = ['ID','Date','Name','Phone','City','Purpose','Package'];
+        const rows = data.map(l => [l.id, l.created_at, l.full_name, l.phone, l.city, l.purpose, l.package_type]);
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'gidatech_leads.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
-    // --- PROJECTS ---
-    async function loadProjects() {
-        const container = document.getElementById('project-list');
-        container.innerHTML = 'Loading...';
-        const { data, error } = await supabaseClient.from('projects').select('*').order('display_order', { ascending: true });
-        if (error) { container.innerHTML = 'Error: ' + error.message; return; }
-        container.innerHTML = '';
-        if (!data.length) { container.innerHTML = '<p>No projects yet.</p>'; return; }
-        data.forEach(p => {
-            container.innerHTML += '<div class="item-card"><img src="' + (p.image_url||'') + '"><div class="item-details"><h4>' + (p.title||'') + '</h4><p>' + (p.description||'') + '</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(\'projects\',\'' + p.id + '\')">Delete</button></div></div>';
-        });
-    }
-
-    document.getElementById('add-project-btn').addEventListener('click', async (e) => {
-        const btn = e.target;
-        const title = document.getElementById('p-title').value.trim();
-        const desc = document.getElementById('p-desc').value.trim();
-        const link = document.getElementById('p-link').value.trim();
-        const file = document.getElementById('p-file').files[0];
-        if (!title || !file) return alert('Title and Image are required');
-        btn.textContent = 'Uploading...'; btn.disabled = true;
-        try {
-            const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
-            const fileName = 'projects/' + Date.now() + '.' + fileExt;
-            const { error: upErr } = await supabaseClient.storage.from('homepage-images').upload(fileName, file, { upsert: false });
-            if (upErr) throw upErr;
-            const imageUrl = SUPABASE_URL + '/storage/v1/object/public/homepage-images/' + fileName;
-            const { error: dbErr } = await supabaseClient.from('projects').insert([{ title: title, description: desc, link_url: link, image_url: imageUrl, display_order: Date.now() }]);
-            if (dbErr) throw dbErr;
-            document.getElementById('p-title').value = '';
-            document.getElementById('p-desc').value = '';
-            document.getElementById('p-link').value = '';
-            document.getElementById('p-file').value = '';
-            await loadProjects();
-            alert('Project added!');
-        } catch (err) { alert('Error: ' + (err?.message || err)); }
-        finally { btn.textContent = 'Add Project'; btn.disabled = false; }
-    });
-
-    // --- TEAM ---
-    async function loadTeam() {
-        const container = document.getElementById('team-list');
-        container.innerHTML = 'Loading...';
-        const { data, error } = await supabaseClient.from('team_members').select('*').order('display_order', { ascending: true });
-        if (error) { container.innerHTML = 'Error: ' + error.message; return; }
-        container.innerHTML = '';
-        if (!data.length) { container.innerHTML = '<p>No team members yet.</p>'; return; }
-        data.forEach(t => {
-            container.innerHTML += '<div class="item-card"><img src="' + (t.image_url||'') + '"><div class="item-details"><h4>' + (t.name||'') + '</h4><p>' + (t.role||'') + '</p></div><div class="actions"><button class="btn btn-danger" onclick="deleteItem(\'team_members\',\'' + t.id + '\')">Delete</button></div></div>';
-        });
-    }
-
-    document.getElementById('add-team-btn').addEventListener('click', async (e) => {
-        const btn = e.target;
-        const name = document.getElementById('t-name').value.trim();
-        const role = document.getElementById('t-role').value.trim();
-        const file = document.getElementById('t-file').files[0];
-        if (!name || !file) return alert('Name and Photo are required');
-        btn.textContent = 'Uploading...'; btn.disabled = true;
-        try {
-            const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
-            const fileName = 'team/' + Date.now() + '.' + fileExt;
-            const { error: upErr } = await supabaseClient.storage.from('pages-images').upload(fileName, file, { upsert: false });
-            if (upErr) throw upErr;
-            const imageUrl = SUPABASE_URL + '/storage/v1/object/public/pages-images/' + fileName;
-            const { error: dbErr } = await supabaseClient.from('team_members').insert([{ name: name, role: role, image_url: imageUrl, display_order: Date.now() }]);
-            if (dbErr) throw dbErr;
-            document.getElementById('t-name').value = '';
-            document.getElementById('t-role').value = '';
-            document.getElementById('t-file').value = '';
-            await loadTeam();
-            alert('Team member added!');
-        } catch (err) { alert('Error: ' + (err?.message || err)); }
-        finally { btn.textContent = 'Add Member'; btn.disabled = false; }
-    });
-
-    // --- DELETE ---
-    window.deleteItem = async (table, id) => {
-        if (!confirm('Delete this item?')) return;
-        const { error } = await supabaseClient.from(table).delete().eq('id', id);
-        if (error) alert('Error: ' + error.message);
-        else { if (table === 'projects') loadProjects(); if (table === 'team_members') loadTeam(); }
-    };
-
-    // =============================================
-    // SECTION-BASED MEDIA MANAGER
-    // =============================================
+    // ============================================================
+    // MEDIA MANAGER FUNCTIONS
+    // ============================================================
 
     const MEDIA_REGISTRY = {
         homepage: {
@@ -450,20 +362,17 @@
                 { key: 'hero_video', label: 'Hero Background Video', bucket: 'hero-assets', accept: 'video/*', storagePath: 'hero_video.mp4' },
                 { key: 'hero_background', label: 'Hero Fallback Image', bucket: 'hero-assets', accept: 'image/*', storagePath: 'hero_bg.jpg' },
             ],
-            works: [], // managed via Projects tab
             services: [
                 { key: 'svc_thumb_lighting', label: 'Smart Lighting Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
                 { key: 'svc_thumb_audio', label: 'Home Audio Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
-                { key: 'svc_thumb_security', label: 'CCTV & Security Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
-                { key: 'svc_thumb_solar', label: 'Solar & Power Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'svc_thumb_security', label: 'Security Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'svc_thumb_solar', label: 'Solar Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
             ],
             process: [
                 { key: 'process_image', label: 'Engineering Process Image', bucket: 'homepage-images', accept: 'image/*' },
             ],
-            team: [], // managed via Team tab
-            faq: [], // no images
             footer: [
-                { key: 'experience_image', label: 'Full-Width Experience Image', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'experience_image', label: 'Experience Image', bucket: 'homepage-images', accept: 'image/*' },
                 { key: 'footer_cta_bg', label: 'Footer CTA Background', bucket: 'homepage-images', accept: 'image/*' },
             ],
         },
@@ -473,8 +382,6 @@
                 { key: 'lighting_grid_1', label: 'Grid Card — Morning', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'lighting_grid_2', label: 'Grid Card — Afternoon', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'lighting_grid_3', label: 'Grid Card — Evening', bucket: 'pages-images', accept: 'image/*' },
-                { key: 'lighting_zigzag_1', label: 'Zigzag — Auto Day-to-Night', bucket: 'pages-images', accept: 'image/*' },
-                { key: 'lighting_zigzag_2', label: 'Zigzag — Clean Walls', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'lighting_usp', label: 'USP Interface Image', bucket: 'pages-images', accept: 'image/*' },
             ],
             audio: [
@@ -482,7 +389,6 @@
                 { key: 'audio_gallery_1', label: 'Gallery — Private Cinema', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'audio_gallery_2', label: 'Gallery — Living Room', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'audio_gallery_3', label: 'Gallery — Outdoor', bucket: 'pages-images', accept: 'image/*' },
-                { key: 'audio_statement', label: 'Statement Section Image', bucket: 'pages-images', accept: 'image/*' },
             ],
             security: [
                 { key: 'security_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
@@ -490,7 +396,6 @@
                 { key: 'security_quad_2', label: 'Quad Grid — Perimeter', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'security_quad_3', label: 'Quad Grid — Interior', bucket: 'pages-images', accept: 'image/*' },
                 { key: 'security_quad_4', label: 'Quad Grid — Control', bucket: 'pages-images', accept: 'image/*' },
-                { key: 'security_focus', label: 'Focus Section Image', bucket: 'pages-images', accept: 'image/*' },
             ],
             solar: [
                 { key: 'solar_hero', label: 'Page Hero Image', bucket: 'pages-images', accept: 'image/*' },
@@ -502,24 +407,45 @@
         }
     };
 
-    // Info messages for sections with no direct media
     const SECTION_NOTES = {
-        'homepage-works': '📌 Project images are managed in the <strong>Projects</strong> tab. Each project card has its own image upload.',
-        'homepage-team': '📌 Individual team member photos are managed in the <strong>Team</strong> tab. The group photo below is a separate homepage asset.',
-        'homepage-faq': '📌 The FAQ section contains no images or videos — it\'s text-only.',
+        'homepage-works': '📌 Project images are managed in the <strong>Projects</strong> tab.',
+        'homepage-team': '📌 Team member photos are managed in the <strong>Team</strong> tab.',
     };
 
-    let mediaContentMap = {};
+    async function loadMediaRegistry() {
+        console.log('[loadMediaRegistry] Fetching site_content...');
+        const { data, error } = await supabaseClient.from('site_content').select('*');
+        
+        if (error) {
+            console.error('[loadMediaRegistry] Error:', error.message);
+            return;
+        }
+
+        mediaContentMap = {};
+        if (data) {
+            data.forEach(item => mediaContentMap[item.key] = item.value);
+        }
+        console.log('[loadMediaRegistry] Loaded', Object.keys(mediaContentMap).length, 'items');
+
+        // Render active section
+        const activeGroup = document.querySelector('.media-group.active');
+        const activeSub = activeGroup ? activeGroup.querySelector('.media-sub.active') : null;
+        if (activeSub) {
+            const id = activeSub.id;
+            const parts = id.replace('media-sub-','').split('-');
+            renderMediaSection(parts[0], parts[1]);
+        }
+    }
 
     window.switchMediaGroup = function(group) {
         document.querySelectorAll('.media-group').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.media-level-tab').forEach(el => el.classList.remove('active'));
         document.getElementById('media-group-' + group).classList.add('active');
-        // Activate the right tab button
+        
         const tabs = document.querySelectorAll('.media-level-tab');
         if (group === 'homepage') tabs[0].classList.add('active');
         else tabs[1].classList.add('active');
-        // Show first sub-tab
+        
         const firstSub = document.querySelector('#media-group-' + group + ' .sub-tab');
         if (firstSub) firstSub.click();
     };
@@ -529,30 +455,15 @@
         container.querySelectorAll('.media-sub').forEach(el => el.classList.remove('active'));
         container.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
         document.getElementById('media-sub-' + group + '-' + sub).classList.add('active');
-        // Find and activate the clicked sub-tab button
+        
         container.querySelectorAll('.sub-tab').forEach(btn => {
-            if (btn.textContent.toLowerCase().includes(sub) || btn.getAttribute('onclick')?.includes("'" + sub + "'")) {
+            if (btn.getAttribute('onclick')?.includes("'" + sub + "'")) {
                 btn.classList.add('active');
             }
         });
+        
         renderMediaSection(group, sub);
     };
-
-    async function loadMediaRegistry() {
-        // Fetch all site_content to get current URLs
-        const { data, error } = await supabaseClient.from('site_content').select('*');
-        if (error) { console.error('Failed to load site_content:', error.message); return; }
-        mediaContentMap = {};
-        if (data) data.forEach(item => mediaContentMap[item.key] = item.value);
-        // Render the currently active section
-        const activeGroup = document.querySelector('.media-group.active');
-        const activeSub = activeGroup ? activeGroup.querySelector('.media-sub.active') : null;
-        if (activeSub) {
-            const id = activeSub.id; // e.g. media-sub-homepage-hero
-            const parts = id.replace('media-sub-','').split('-');
-            renderMediaSection(parts[0], parts[1]);
-        }
-    }
 
     function renderMediaSection(group, sub) {
         const container = document.getElementById('media-sub-' + group + '-' + sub);
@@ -616,29 +527,25 @@
         btn.disabled = true;
 
         try {
-            // Determine storage path
+            console.log('[replaceMedia] Uploading', file.name, 'to', bucket);
+            
             const fileExt = (file.name.split('.').pop() || 'bin').toLowerCase();
             const storagePath = fixedPath || ('media/' + key + '.' + fileExt);
 
-            // Upload (upsert to replace existing)
             const { error: upErr } = await supabaseClient.storage.from(bucket).upload(storagePath, file, { upsert: true });
             if (upErr) throw upErr;
 
-            // Build public URL
             const publicUrl = SUPABASE_URL + '/storage/v1/object/public/' + bucket + '/' + storagePath + '?t=' + Date.now();
 
-            // Upsert into site_content
             const { error: dbErr } = await supabaseClient.from('site_content').upsert(
                 { key: key, value: publicUrl, type: file.type.startsWith('video') ? 'video' : 'image' },
                 { onConflict: 'key' }
             );
             if (dbErr) throw dbErr;
 
-            // Update local map & re-render
             mediaContentMap[key] = publicUrl;
             fileInput.value = '';
 
-            // Re-render current section
             const activeGroup = document.querySelector('.media-group.active');
             const activeSub = activeGroup ? activeGroup.querySelector('.media-sub.active') : null;
             if (activeSub) {
@@ -647,8 +554,9 @@
                 renderMediaSection(parts[0], parts[1]);
             }
 
-            alert('✅ Media replaced & linked to site!');
+            alert('✅ Media replaced!');
         } catch (err) {
+            console.error('[replaceMedia] Error:', err);
             alert('Error: ' + (err?.message || err));
         } finally {
             btn.textContent = 'Replace';
@@ -656,39 +564,380 @@
         }
     };
 
-    // --- LEADS ---
-    async function loadLeads() {
-        const tbody = document.querySelector('#leads-table tbody');
-        tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-        const { data, error } = await supabaseClient.from('leads').select('*').order('created_at', { ascending: false });
-        if (error) return;
-        tbody.innerHTML = '';
-        document.getElementById('leads-stats').innerText = 'Total Downloads: ' + data.length;
-        data.forEach(l => {
-            var date = new Date(l.created_at).toLocaleDateString();
-            var bc = l.package_type === 'tuya' ? 'badge-tuya' : 'badge-orvibo';
-            tbody.innerHTML += '<tr><td>' + date + '</td><td>' + l.full_name + '</td><td>' + l.phone + '</td><td>' + (l.city||'-') + '</td><td>' + (l.purpose||'-') + '</td><td><span class="badge ' + bc + '">' + (l.package_type||'Unknown') + '</span></td></tr>';
+    // ============================================================
+    // CONTENT FUNCTIONS
+    // ============================================================
+
+    async function loadContent() {
+        const container = document.getElementById('content-list');
+        container.innerHTML = 'Loading...';
+        
+        const { data, error } = await supabaseClient
+            .from('site_content')
+            .select('*');
+        
+        if (error) {
+            container.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            return;
+        }
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p>No content yet.</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        data.forEach(item => {
+            const row = document.createElement('div');
+            row.style.cssText = 'border:1px solid #e5e7eb; padding:15px; margin-bottom:15px; border-radius:6px;';
+            const textArea = document.createElement('textarea');
+            textArea.value = item.value;
+            textArea.style.cssText = 'width:100%; height:60px; font-family:monospace; font-size:0.8rem; box-sizing: border-box; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; margin: 8px 0;';
+            
+            row.innerHTML = `<label style="display:block; margin-bottom:10px; font-weight:600;">${item.key}</label>`;
+            row.appendChild(textArea);
+            
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn';
+            saveBtn.textContent = 'Save';
+            saveBtn.style.marginTop = '10px';
+            saveBtn.onclick = async () => {
+                const { error } = await supabaseClient
+                    .from('site_content')
+                    .update({ value: textArea.value })
+                    .eq('key', item.key);
+                
+                if (error) {
+                    alert('Error: ' + error.message);
+                } else {
+                    alert('Saved!');
+                }
+            };
+            row.appendChild(saveBtn);
+            container.appendChild(row);
         });
     }
 
-    window.exportCSV = async () => {
-        const { data } = await supabaseClient.from('leads').select('*');
-        if (!data || !data.length) return alert('No data to export');
-        var headers = ['ID','Date','Name','Phone','City','Purpose','Package'];
-        var rows = data.map(function(l) { return [l.id, l.created_at, l.full_name, l.phone, l.city, l.purpose, l.package_type]; });
-        var csv = [headers.join(',')].concat(rows.map(function(e) { return e.join(','); })).join('\n');
-        var blob = new Blob([csv], { type: 'text/csv' });
-        var link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "gidatech_leads.csv";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    // ============================================================
+    // PROJECTS FUNCTIONS
+    // ============================================================
+
+    async function loadProjects() {
+        const container = document.getElementById('project-list');
+        container.innerHTML = 'Loading...';
+        
+        const { data, error } = await supabaseClient
+            .from('projects')
+            .select('*')
+            .order('display_order');
+        
+        if (error) {
+            container.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            return;
+        }
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p>No projects yet.</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        data.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <img src="${p.image_url}" loading="lazy" alt="${p.title}">
+                <div class="item-details">
+                    <h4>${p.title}</h4>
+                    <p>${p.description || ''}</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-danger" onclick="deleteItem('projects', '${p.id}')">Delete</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    document.getElementById('add-project-btn').addEventListener('click', async (e) => {
+        const btn = e.target;
+        const title = document.getElementById('p-title').value.trim();
+        const desc = document.getElementById('p-desc').value.trim();
+        const link = document.getElementById('p-link').value.trim();
+        const file = document.getElementById('p-file').files[0];
+        
+        if (!title || !file) return alert('Title and Image are required');
+        
+        btn.textContent = 'Uploading...';
+        btn.disabled = true;
+        
+        try {
+            const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
+            const fileName = 'projects/' + Date.now() + '.' + fileExt;
+            
+            const { error: upErr } = await supabaseClient.storage.from('homepage-images').upload(fileName, file, { upsert: false });
+            if (upErr) throw upErr;
+            
+            const imageUrl = SUPABASE_URL + '/storage/v1/object/public/homepage-images/' + fileName;
+            
+            const { error: dbErr } = await supabaseClient.from('projects').insert([{
+                title: title,
+                description: desc,
+                link_url: link,
+                image_url: imageUrl,
+                display_order: Date.now()
+            }]);
+            if (dbErr) throw dbErr;
+            
+            document.getElementById('p-title').value = '';
+            document.getElementById('p-desc').value = '';
+            document.getElementById('p-link').value = '';
+            document.getElementById('p-file').value = '';
+            
+            await loadProjects();
+            alert('Project added!');
+        } catch (err) {
+            alert('Error: ' + (err?.message || err));
+        } finally {
+            btn.textContent = 'Add Project';
+            btn.disabled = false;
+        }
+    });
+
+    // ============================================================
+    // TEAM FUNCTIONS
+    // ============================================================
+
+    async function loadTeam() {
+        const container = document.getElementById('team-list');
+        container.innerHTML = 'Loading...';
+        
+        const { data, error } = await supabaseClient
+            .from('team_members')
+            .select('*')
+            .order('display_order');
+        
+        if (error) {
+            container.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            return;
+        }
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p>No team members yet.</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        data.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <img src="${t.image_url}" loading="lazy" alt="${t.name}">
+                <div class="item-details">
+                    <h4>${t.name}</h4>
+                    <p>${t.role || ''}</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-danger" onclick="deleteItem('team_members', '${t.id}')">Delete</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    document.getElementById('add-team-btn').addEventListener('click', async (e) => {
+        const btn = e.target;
+        const name = document.getElementById('t-name').value.trim();
+        const role = document.getElementById('t-role').value.trim();
+        const file = document.getElementById('t-file').files[0];
+        
+        if (!name || !file) return alert('Name and Photo are required');
+        
+        btn.textContent = 'Uploading...';
+        btn.disabled = true;
+        
+        try {
+            const fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
+            const fileName = 'team/' + Date.now() + '.' + fileExt;
+            
+            const { error: upErr } = await supabaseClient.storage.from('pages-images').upload(fileName, file, { upsert: false });
+            if (upErr) throw upErr;
+            
+            const imageUrl = SUPABASE_URL + '/storage/v1/object/public/pages-images/' + fileName;
+            
+            const { error: dbErr } = await supabaseClient.from('team_members').insert([{
+                name: name,
+                role: role,
+                image_url: imageUrl,
+                display_order: Date.now()
+            }]);
+            if (dbErr) throw dbErr;
+            
+            document.getElementById('t-name').value = '';
+            document.getElementById('t-role').value = '';
+            document.getElementById('t-file').value = '';
+            
+            await loadTeam();
+            alert('Team member added!');
+        } catch (err) {
+            alert('Error: ' + (err?.message || err));
+        } finally {
+            btn.textContent = 'Add Member';
+            btn.disabled = false;
+        }
+    });
+
+    // ============================================================
+    // SHARED FUNCTIONS
+    // ============================================================
+
+    window.deleteItem = async (table, id) => {
+        if (!confirm('Delete this item?')) return;
+        const { error } = await supabaseClient.from(table).delete().eq('id', id);
+        if (error) {
+            alert('Error: ' + error.message);
+        } else {
+            if (table === 'projects') loadProjects();
+            if (table === 'team_members') loadTeam();
+        }
     };
 
-    initAuth();
+    function setLoginLoading(isLoading) {
+        const btn = loginForm.querySelector('button[type="submit"]');
+        if (!btn) return;
+        btn.disabled = isLoading;
+        btn.textContent = isLoading ? "Signing In..." : "Sign In";
+    }
+
+    function showLogin() {
+        loginView.style.display = 'block';
+        dashboardView.style.display = 'none';
+        authStatus.textContent = 'Not authenticated';
+    }
+
+    function showDashboard() {
+        loginView.style.display = 'none';
+        dashboardView.style.display = 'block';
+        
+        if (!dashboardInitialized) {
+            dashboardInitialized = true;
+            console.log('[showDashboard] First time - loading all data');
+            
+            (async () => {
+                await loadLeads();
+                await loadMediaRegistry();
+                await loadContent();
+                await loadProjects();
+                await loadTeam();
+            })();
+        }
+    }
+
+    // ============================================================
+    // AUTH FUNCTIONS
+    // ============================================================
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log('[onAuthStateChange]', event, 'session:', !!session);
+        
+        if (session) {
+            authStatus.textContent = `Logged in as: ${session.user.email}`;
+        } else {
+            authStatus.textContent = 'Not authenticated';
+        }
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginError.textContent = "";
+        setLoginLoading(true);
+
+        try {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            console.log('[login] Attempting sign in...');
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                console.error('[login] Auth error:', error);
+                throw error;
+            }
+
+            if (!data.session) {
+                throw new Error('No session returned from sign in');
+            }
+
+            console.log('[login] Success!');
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            showDashboard();
+
+        } catch (err) {
+            console.error('[login] Exception:', err);
+            loginError.textContent = err?.message || "Login failed.";
+            showLogin();
+        } finally {
+            setLoginLoading(false);
+        }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        dashboardInitialized = false;
+        showLogin();
+    });
+
+    // ============================================================
+    // TAB SWITCHING
+    // ============================================================
+
+    window.switchTab = function(tabName) {
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+        const tabEl = document.getElementById('tab-' + tabName);
+        if (tabEl) tabEl.classList.add('active');
+
+        const tabs = ['leads', 'media', 'content', 'projects', 'team'];
+        const idx = tabs.indexOf(tabName);
+        if (idx >= 0) {
+            const btns = document.querySelectorAll('.nav-btn');
+            if (btns[idx]) btns[idx].classList.add('active');
+        }
+
+        if (tabName === 'leads') loadLeads();
+        if (tabName === 'media') loadMediaRegistry();
+        if (tabName === 'content') loadContent();
+        if (tabName === 'projects') loadProjects();
+        if (tabName === 'team') loadTeam();
+    };
+
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+
+    (async () => {
+        console.log('[init] Checking existing session...');
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        
+        if (error) {
+            console.error('[init] Session check error:', error);
+            showLogin();
+        } else if (session) {
+            console.log('[init] Found existing session:', session.user.email);
+            authStatus.textContent = `Logged in as: ${session.user.email}`;
+            showDashboard();
+        } else {
+            console.log('[init] No session found');
+            showLogin();
+        }
+    })();
+
     </script>
 </body>
 </html>
-
-
