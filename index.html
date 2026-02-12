@@ -1985,8 +1985,7 @@
     window._gidaSD = SD;
     window._gidaTEAM = { get: () => TEAM_HTML_CONTENT, set: (html) => { /* not needed for now */ } };
 
-    // ✅ capture homeHTML BEFORE Supabase loads
-    homeHTML = document.getElementById('main-content').innerHTML;
+   
 
     const hash = window.location.hash;
     if(hash.startsWith('#service/')) { 
@@ -2016,18 +2015,29 @@
     const finalCtaIcon = document.getElementById('wa-icon-cta-final');
     if (finalCtaIcon) finalCtaIcon.innerHTML = WA_SVG;
 
-    // ✅ Load dynamic content AFTER homeHTML captured, then re-save homeHTML
-    if(window.loadDynamicContent) {
-      window.loadDynamicContent().then((contentMap) => {
-        const map = contentMap || window._gidaContentMap;
-        if(map) {
-          window._gidaContentMap = map;
-          applyEditableContent(map);
-          if(currentPage === 'home') homeHTML = document.getElementById('main-content').innerHTML;
-        }
-      });
+   // ✅ Load dynamic content FIRST, then capture homeHTML with updates applied
+if(window.loadDynamicContent) {
+  window.loadDynamicContent().then((contentMap) => {
+    const map = contentMap || window._gidaContentMap;
+    if(map) {
+      window._gidaContentMap = map;
+      applyEditableContent(map);
+      
+      // ✅ NOW capture homeHTML with all dynamic content applied
+      homeHTML = document.getElementById('main-content').innerHTML;
+      
+      console.log('[initializeApp] homeHTML captured after dynamic content applied');
     }
-  }
+  }).catch(err => {
+    console.error('[initializeApp] Dynamic content load failed:', err);
+    // Fallback: capture homeHTML anyway
+    homeHTML = document.getElementById('main-content').innerHTML;
+  });
+} else {
+  // No dynamic loader, capture as-is
+  homeHTML = document.getElementById('main-content').innerHTML;
+}  
+  	  
 })();
 </script>
 
