@@ -362,11 +362,11 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
                 { key: 'hero_video', label: 'Hero Background Video', bucket: 'hero-assets', accept: 'video/*', storagePath: 'hero_video.mp4' },
                 { key: 'hero_background', label: 'Hero Fallback Image', bucket: 'hero-assets', accept: 'image/*', storagePath: 'hero_bg.jpg' },
             ],
-            services: [
-                { key: 'svc_thumb_lighting', label: 'Smart Lighting Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
-                { key: 'svc_thumb_audio', label: 'Home Audio Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
-                { key: 'svc_thumb_security', label: 'Security Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
-                { key: 'svc_thumb_solar', label: 'Solar Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+           services: [
+                { key: 'service_lighting_thumb', label: 'Smart Lighting Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'service_audio_thumb', label: 'Home Audio Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'service_security_thumb', label: 'Security Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
+                { key: 'service_solar_thumb', label: 'Solar Thumbnail', bucket: 'homepage-images', accept: 'image/*' },
             ],
             process: [
                 { key: 'process_image', label: 'Engineering Process Image', bucket: 'homepage-images', accept: 'image/*' },
@@ -827,20 +827,49 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
     // ============================================================
 
     window.deleteItem = async (table, id) => {
-    if (!confirm('Delete this item?')) return;
-    console.log(`[deleteItem] Deleting from ${table} with id=${id}`);
-    const { error } = await supabaseClient.from(table).delete().eq('id', id);
-    if (error) {
-        console.error(`[deleteItem] Delete error:`, {
-            message: error.message,
-            code: error.code,
-            details: error.details
-        });
-        alert('❌ Error: ' + error.message + ' (Check console for details)');
-    } else {
-        console.log(`[deleteItem] Successfully deleted from ${table}!`);
+    if (!confirm('Delete this item? This cannot be undone.')) return;
+    
+    console.log(`[deleteItem] Attempting to delete from ${table} with id=${id}`);
+    
+    try {
+        // First verify we have a session
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+            alert('❌ You must be logged in to delete items.');
+            return;
+        }
+        
+        // Perform delete
+        const { data, error } = await supabaseClient
+            .from(table)
+            .delete()
+            .eq('id', id)
+            .select(); // Request the deleted row back for confirmation
+        
+        if (error) {
+            console.error(`[deleteItem] Delete error:`, error);
+            
+            // User-friendly error messages
+            if (error.code === '42501') {
+                alert('❌ Permission denied. Check your RLS policies.');
+            } else if (error.code === 'PGRST116') {
+                alert('❌ Item not found or already deleted.');
+            } else {
+                alert(`❌ Delete failed: ${error.message}\n\nCode: ${error.code}\n\nCheck browser console for details.`);
+            }
+            return;
+        }
+        
+        console.log(`[deleteItem] Successfully deleted:`, data);
+        alert('✅ Item deleted successfully!');
+        
+        // Reload the list
         if (table === 'projects') loadProjects();
         if (table === 'team_members') loadTeam();
+        
+    } catch (err) {
+        console.error('[deleteItem] Exception:', err);
+        alert(`❌ Unexpected error: ${err.message}`);
     }
 };
 
@@ -983,4 +1012,5 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
     </script>
 </body>
 </html>
+
 
