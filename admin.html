@@ -207,8 +207,12 @@
             <div id="tab-leads" class="tab-pane">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                     <h3>Package Downloads</h3>
-                    <button onclick="exportCSV()" class="btn btn-secondary">Download CSV</button>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="loadLeads()" class="btn btn-secondary">Refresh</button>
+                        <button onclick="exportCSV()" class="btn btn-secondary">Download CSV</button>
+                    </div>
                 </div>
+
                 <div id="leads-stats" style="margin-bottom:20px; font-weight:600; color:#111827;"></div>
                 <div style="overflow-x:auto;">
                     <table id="leads-table">
@@ -294,6 +298,7 @@
         const idx = tabs.indexOf(tabName);
         if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
         if (tabName === 'media') loadMediaRegistry();
+        if (tabName === 'leads') loadLeads();
     };
 
     // --- SITE CONTENT ---
@@ -655,3 +660,4 @@
     </script>
 </body>
 </html>
+
