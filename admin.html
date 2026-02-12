@@ -302,23 +302,53 @@
     };
 
     // --- SITE CONTENT ---
-    async function loadContent() {
-        const container = document.getElementById('content-list');
-        container.innerHTML = 'Loading...';
-        const { data, error } = await supabaseClient.from('site_content').select('*').order('key');
-        if (error) { container.innerHTML = 'Error: ' + error.message; return; }
-        container.innerHTML = '';
-        data.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'content-row';
-            div.innerHTML = '<div><label>' + (item.description || item.key) + '</label><div class="content-key">' + item.key + '</div></div><div>' +
-                (item.type === 'video'
-                    ? '<input type="text" id="val-' + item.key + '" value="' + (item.value||'').replace(/"/g,'&quot;') + '" placeholder="Video URL">'
-                    : '<textarea id="val-' + item.key + '" rows="2">' + (item.value || '') + '</textarea>') +
-                '</div><div><button class="btn" onclick="saveContent(\'' + item.key + '\')">Save</button></div>';
-            container.appendChild(div);
-        });
+   async function loadLeads() {
+    const tbody = document.querySelector('#leads-table tbody');
+    const stats = document.getElementById('leads-stats');
+
+    tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+    if (stats) stats.innerText = 'Loading...';
+
+    const res = await supabaseClient
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    console.log('[LEADS] response:', res);
+
+    const { data, error } = res;
+
+    if (error) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#ef4444;">Error: ' + error.message + '</td></tr>';
+        if (stats) stats.innerText = 'Error loading leads.';
+        return;
     }
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">No leads returned.</td></tr>';
+        if (stats) stats.innerText = 'Total Downloads: 0 (returned by query)';
+        return;
+    }
+
+    tbody.innerHTML = '';
+    if (stats) stats.innerText = 'Total Downloads: ' + data.length;
+
+    data.forEach(l => {
+        const date = l.created_at ? new Date(l.created_at).toLocaleDateString() : '-';
+        const bc = l.package_type === 'tuya' ? 'badge-tuya' : 'badge-orvibo';
+        tbody.innerHTML += `
+            <tr>
+                <td>${date}</td>
+                <td>${l.full_name || '-'}</td>
+                <td>${l.phone || '-'}</td>
+                <td>${l.city || '-'}</td>
+                <td>${l.purpose || '-'}</td>
+                <td><span class="badge ${bc}">${l.package_type || 'Unknown'}</span></td>
+            </tr>
+        `;
+    });
+}
+
 
     window.saveContent = async (key) => {
         const input = document.getElementById('val-' + key);
@@ -660,4 +690,5 @@
     </script>
 </body>
 </html>
+
 
