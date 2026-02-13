@@ -214,6 +214,28 @@
     </div>
 
     <script>
+
+         (async function clearSessionOnLoad() {
+        console.log('[clearSessionOnLoad] Clearing Supabase session on page load...');
+        
+        // Wait for Supabase to load
+        if (!window.supabase || !window.supabase.createClient) {
+            console.warn('[clearSessionOnLoad] Supabase not loaded yet, skipping clear');
+            return;
+        }
+
+        const SUPABASE_URL = 'https://jurrmvwgtloxsukfspub.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1cnJtdndndGxveHN1a2ZzcHViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NjI5ODUsImV4cCI6MjA4NjEzODk4NX0.nylOyFvsYeJZuJxwcIyfiwNOQHyL0YOV3uXcnHGr9LY';
+        
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        try {
+            await supabaseClient.auth.signOut();
+            console.log('[clearSessionOnLoad] ✅ Session cleared successfully');
+        } catch (err) {
+            console.warn('[clearSessionOnLoad] Could not clear session:', err.message);
+        }
+    })();
     // ============================================================
     // SUPABASE CONFIG
     // ============================================================
@@ -1012,5 +1034,6 @@ Sample: ${JSON.stringify(data?.[0] || {}, null, 2)}
     </script>
 </body>
 </html>
+
 
 
